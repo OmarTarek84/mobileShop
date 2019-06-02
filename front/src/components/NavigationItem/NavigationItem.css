@@ -1,0 +1,42 @@
+.nav-li {
+    margin-left: 7px;
+    margin-right: 7px;
+    font-size: 14px;
+}
+
+@media (max-width: 569.09px) {
+    .nav-li {
+        margin: 0;
+    }
+    .nav-li:not(:first-child) {
+        margin-top: 5px;
+    }
+}
+
+.nav-li a {
+    text-decoration: none;
+    color: white;
+}
+
+.nav-li a:hover,
+.nav-li a:active,
+.nav-li a.active {
+    color: #FFA400;
+}
+
+@media (max-width: 569.09px) {
+    .nav-li a {
+        display: inline-block;
+        padding: 10px;
+        width: 90%;
+        font-weight: bolder;
+        color: blue;
+    }
+    .nav-li:hover {
+        background-color: #07393C;
+    }
+    .nav-li a:hover,
+    .nav-li a:active {
+        color: #FFA400;
+    }
+}

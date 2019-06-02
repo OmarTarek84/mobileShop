@@ -1,0 +1,47 @@
+.formParent h1 {
+    text-align: center;
+    padding-top: 12px;
+    text-decoration: underline;
+}
+
+.login-form {
+  width: 20rem;
+  max-width: 90%;
+  margin: auto;
+  display: block;
+  margin-top: 40px;
+}
+
+.login-form .submit-button {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.login-form .submit-button button {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.form-control:not(:first-child) {
+  margin-top: 10px
+}
+
+.form-control label,
+.form-control input,
+.form-control textarea {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.25rem;
+  outline: none;
+}
+
+.form-control input,
+.form-control textarea {
+  font: inherit;
+  border-radius: 2px;
+  padding: 5px;
+}
+
+.form-control.displaynone {
+  display: none;
+}

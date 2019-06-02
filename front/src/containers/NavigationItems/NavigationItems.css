@@ -1,0 +1,108 @@
+.big-screen {
+    height: 60px;
+    background-color: #07393C;
+    padding-left: 30px;
+    padding-right: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+@media (max-width: 569.09px) {
+    .big-screen {
+        display: none;
+    }
+}
+
+@media (max-width: 569.6px) {
+    .big-screen {
+        display: none;
+    }
+}
+
+.big-screen ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    line-height: 60px;
+}
+
+.small-screen {
+    height: 60px;
+    background-color: #07393C;
+    padding-left: 20px;
+    padding-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+@media (min-width: 570px) {
+    .small-screen {
+        display: none;
+    }
+}
+
+.small-screen .nav-sidedrawer .toggleButton {
+    cursor: pointer;
+    width: 42px;
+    height: 42px;
+}
+
+.small-screen .nav-sidedrawer .toggleButton span:first-child {
+    position: absolute;
+    display: inline-block;
+    width: 40px;
+    height: 3px;
+    background-color: white;
+    top: 15px;
+}
+
+.small-screen .toggleButton span:nth-child(2) {
+    position: absolute;
+    top: 25px;
+    display: inline-block;
+    width: 40px;
+    height: 3px;
+    background-color: white;
+}
+
+.small-screen .toggleButton span:nth-child(3) {
+    position: absolute;
+    display: inline-block;
+    width: 40px;
+    height: 3px;
+    background-color: white;
+    top: 35px;
+}
+
+.small-screen .nav-sidedrawer .sidedrawer {
+    position: fixed;
+    z-index: 99;
+    top: 0;
+    left: 0;
+    background-color: #dedede;
+    width: 200px;
+    height: 100%;
+    box-shadow: 2px 2px 7px -1px black;
+    transition: all .4s ease-in-out;
+}
+
+.small-screen .nav-sidedrawer .sidedrawer .sidedrawer-close {
+    text-align: right;
+    cursor: pointer;
+}
+
+.small-screen .nav-sidedrawer .sidedrawer .sidedrawer-close p {
+    margin-right: 10px;
+    font-weight: bolder;
+}
+
+.small-screen .nav-sidedrawer .sidedrawer .sidedrawer-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}

@@ -1,0 +1,46 @@
+.clear_and_order {
+    margin-top: 30px;
+    text-align: right;
+    margin-right: 20px;
+}
+
+.clear_and_order .clear_cart {
+    padding: 8px 20px;
+    background-color: transparent;
+    color: red;
+    border: 1px solid red;
+    cursor: pointer;
+    border-radius: 9px;
+    outline: none;
+}
+
+.clear_and_order .clear_cart:hover {
+    background-color: red;
+    color: white;
+}
+
+.clear_and_order .order_total {
+    margin-top: 10px;
+}
+
+.clear_and_order .order_total p {
+    margin-top: 7px;
+    font-family: 'Just Another Hand', cursive;
+    font-size: 35px;
+}
+
+.clear_and_order .order_total p span {
+    font-weight: bolder;
+}
+
+.clear_and_order .order_stripe {
+    margin-top: 13px;
+}
+
+.spinner-parent .Loader {
+    margin-top: 0;
+    transform: translate(-50%, -50%);
+    position: fixed;
+    left: 50%;
+    top: 50%;
+}
