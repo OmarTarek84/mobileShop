@@ -1,0 +1,8 @@
+{
+    "env": {
+        "MONGO_PASS": "VFpVsRzNbfYNkW4u",
+        "MONGO_USER": "omar",
+        "DATABASE": "mobile-shop",
+        "JWT_SECRET": "hfkdsRklrfd42skhfGrudsg2434"
+    }
+}

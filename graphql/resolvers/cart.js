@@ -226,9 +226,9 @@ module.exports = {
     },
 
     orders: (args, req) => {
-        if (!req.isAuth) {
-            throw new Error('UnAuthorized');
-        }
+        // if (!req.isAuth) {
+        //     throw new Error('UnAuthorized');
+        // }
         return Order.find({userId: args.userId}).then(orders => {
             return orders.map(order => {
                 return {

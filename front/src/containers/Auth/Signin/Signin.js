@@ -123,7 +123,7 @@ class Signin extends Component {
             }
         };
 
-        axios.post('/graphql', JSON.stringify(requestBody), {headers: {
+        axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
             'Content-Type': 'application/json'
         }}).then(resData => {
                 this.props.onLogIn(resData.data.data.loginUser.token, resData.data.data.loginUser.userId, resData.data.data.loginUser.firstname);

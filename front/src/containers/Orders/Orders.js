@@ -1,24 +1,25 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Orders.css';
 import Orders from '../../components/Orders/Orders';
-import {connect} from 'react-redux';
+import {useSelector} from 'react-redux';
 import axios from 'axios';
 import Spinner from '../../components/UI/Spinner/Spinner';
 
-class OrdersContainer extends Component {
+const ordersContainer = (props) => {
 
-    state = {
-        orders: [],
-        isLoading: false,
-        noOrders: false
-    }
+    const [orders, setOrders] = useState([]);
+    const [isLoading, setisLoading] = useState(false);
+    const [noOrders, setnoOrders] = useState(false);
 
-    componentDidMount() {
-        this.onFetchOrders();
-    }
+    const token = useSelector(state => state.auth.token);
+    const userId = useSelector(state => state.auth.userId);
 
-    onFetchOrders = () => {
-        this.setState({isLoading: true});
+    useEffect(() => {
+        onFetchOrders();
+    }, [onFetchOrders])
+
+    const onFetchOrders = () => {
+        setisLoading(true);
         const requestBody = {
             query: `
                 query Orders($userId: String) {
@@ -44,31 +45,33 @@ class OrdersContainer extends Component {
             }
         };
 
-        axios.post('/graphql', requestBody, {headers: {
+        axios.post('http://localhost:8080/graphql', requestBody, {headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.props.token
+            'Authorization': 'Bearer ' + token
         }})
         .then(resData => {
             if (resData.data.data.orders.length <= 0) {
-                this.setState({noOrders: true, isLoading: false});
+                setisLoading(false);
+                setnoOrders(true);
             } else {
-                this.setState({orders: resData.data.data.orders, isLoading: false, noOrders: false});
+                setOrders(resData.data.data.orders);
+                setnoOrders(false);
             }
+            setisLoading(false);
         })
         .catch(err => {
-            this.setState({isLoading: false});
+            setisLoading(false);
         });
     }
 
-    render() {
         let allOrders;
-        if (this.state.isLoading) {
+        if (isLoading) {
             allOrders = <Spinner />;
         } else {
-            if (this.state.noOrders) {
+            if (noOrders) {
                 allOrders = <h1>No Orders Yet!!</h1>
             } else {
-                allOrders = <Orders orders={this.state.orders} />
+                allOrders = <Orders orders={orders} />
             }
         }
         return (
@@ -78,13 +81,5 @@ class OrdersContainer extends Component {
             </div>
         )
     }
-}
 
-const mapStateToProps = state => {
-    return {
-        token: state.token,
-        userId: state.userId
-    }
-}
-
-export default connect(mapStateToProps)(OrdersContainer);
+export default ordersContainer;

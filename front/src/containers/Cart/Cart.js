@@ -51,7 +51,7 @@ class CartContainer extends Component {
                 userId: localStorage.getItem('userId')
             }
         };
-        axios.post('/graphql', JSON.stringify(requestBody), {headers: {
+        axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + this.props.token
         }}).then(resData => {
@@ -101,7 +101,7 @@ class CartContainer extends Component {
             }
         };
         
-        axios.post('/graphql', JSON.stringify(requestBody), {headers: {
+        axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + this.props.token
         }}).then(resData => {
@@ -142,7 +142,7 @@ class CartContainer extends Component {
             }
         };
         
-        axios.post('/graphql', JSON.stringify(requestBody), {headers: {
+        axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + this.props.token
         }}).then(resData => {
@@ -182,7 +182,7 @@ class CartContainer extends Component {
                 }  
             `
         };
-        axios.post('/graphql', requestBody, {headers: {
+        axios.post('http://localhost:8080/graphql', requestBody, {headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + this.props.token
         }})
@@ -205,7 +205,7 @@ class CartContainer extends Component {
                 cartId: id
             }
         };
-        axios.post('/graphql', requestBody, {headers: {
+        axios.post('http://localhost:8080/graphql', requestBody, {headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + this.props.token
         }})
@@ -238,7 +238,7 @@ class CartContainer extends Component {
             `
         };
 
-        axios.post('/graphql', requestBody, {headers: {
+        axios.post('http://localhost:8080/graphql', requestBody, {headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + this.props.token
         }})

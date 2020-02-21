@@ -234,7 +234,7 @@ class CreateMobiles extends Component {
                   }
               }
       
-              return axios.post('/graphql', JSON.stringify(requestBody), {headers: {
+              return axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
                   'Content-Type': 'application/json',
                   'Authorization': 'Bearer ' + this.props.token
               }}).then(resData => {

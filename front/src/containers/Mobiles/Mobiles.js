@@ -1,73 +1,86 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './Mobiles.css';
 import AllMobiles from '../../components/Mobiles/Mobiles';
-import {connect} from 'react-redux';
+import {useSelector} from 'react-redux';
+import {} from 'redux';
 import axios from 'axios';
 import Backdrop from '../../components/UI/Backdrop/Backdrop';
 import Button from '../../components/UI/Button/Button';
 import openSocket from 'socket.io-client';
 
-class Mobiles extends Component {
-    isActive = true
-    state = {
-        mobiles: [],
-        noMobiles: false,
-        cartAdded: false,
-        cartAddedItem: null,
-        buttonDisabled: false,
-    }
+const mobiles = (props) => {
 
-    componentDidMount() {
-        this.onFetchMobiles();
-        const socket = openSocket('/');
+    const [mobiles, setMobiles] = useState([]);
+    const [noMobiles, setNoMobiles] = useState(false);
+    const [cartAdded, setcartAdded] = useState(false);
+    const [cartAddedItem, setcartAddedItem] = useState(null);
+    const [buttonDisabled, setbuttonDisabled] = useState(false);
+    const token = useSelector(state => state.auth.token);
+
+    const socket = openSocket('http://localhost:8080');
+
+    useEffect(() => {
+        onFetchMobiles();
         socket.on('newMobile', data => {
-            this.setState(prevState => {
-                return {
-                    mobiles: prevState.mobiles.concat(data.mobile)
-                };
-            });
+            setMobiles(currentMobiles => [
+                ...currentMobiles,
+                data.mobile
+            ]);
+            // this.setState(prevState => {
+            //     return {
+            //         mobiles: prevState.mobiles.concat(data.mobile)
+            //     };
+            // });
         });
         socket.on('editedMobile', (data) => {
-            const mobileState = [...this.state.mobiles];
-            const filteredMobileIndex = this.state.mobiles.findIndex(mobile => {
+            const mobileState = [...mobiles];
+            const filteredMobileIndex = mobileState.findIndex(mobile => {
                 return mobile._id === data.mobile._id;
             });
-            mobileState[filteredMobileIndex] = data.mobile
-            this.setState({mobiles: mobileState});
+            mobileState[filteredMobileIndex] = data.mobile;
+            setMobiles(currentMobs => [
+                ...currentMobs,
+                mobileState
+            ]);
+            // this.setState({mobiles: mobileState});
         })
-    }
+    }, [onFetchMobiles])
 
-    componentWillUnmount() {
-        this.isActive = false;
-    }
+    // componentDidMount() {
 
-    onGoToEdit = (id) => {
-        const filteredMobile = this.state.mobiles.find(p => {
+    // }
+
+    // componentWillUnmount() {
+    //     this.isActive = false;
+    // }
+
+    const onGoToEdit = (id) => {
+        const filteredMobile = mobiles.find(p => {
             return p._id === id;
         });
         localStorage.setItem('filteredMobile', JSON.stringify(filteredMobile));
-        this.props.history.push({
+        props.history.push({
             pathname: '/edit/' + id,
             search: '?edit=true',
             state: {filteredMobile: filteredMobile}
         });
     };
 
-    onGoToDetail = (id) => {
-        const filteredMobile = this.state.mobiles.find(p => {
+    const onGoToDetail = (id) => {
+        const filteredMobile = mobiles.find(p => {
             return p._id === id;
         });
         localStorage.setItem('filteredMobile', JSON.stringify(filteredMobile));
-        this.props.history.push({
+        props.history.push({
             pathname: '/mobile/' + id,
         });
     };
 
-    onGoToCart = () => {
-        this.props.history.push('/cart');
+    const onGoToCart = () => {
+        props.history.push('/cart');
     }
 
-    onFetchMobiles = () => {
+    const onFetchMobiles = () => {
         const requestBody = {
             query: `
             query {
@@ -89,29 +102,31 @@ class Mobiles extends Component {
               }
             `
         };
-        axios.post('/graphql', JSON.stringify(requestBody), {headers: {
+        axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
             'Content-Type': 'application/json',
         }}).then(resData => {
-                if (this.isActive) {
                     const mobiles = resData.data.data.mobiles;
                     if (mobiles.length <= 0) {
-                        this.setState({noMobiles: true});
+                        setNoMobiles(true);
                     } else {
-                        this.setState({mobiles: mobiles, noMobiles: false});
+                        setMobiles(mobiles);
+                        setNoMobiles(false);
+                        // this.setState({mobiles: mobiles, noMobiles: false});
                     }
-                }
             })
             .catch(err => {
                 console.log(err);
             });
     };
 
-    closeBackdrop = () => {
-        this.setState({cartAdded: false});
+    const closeBackdrop = () => {
+        setcartAdded(false);
+        // this.setState({cartAdded: false});
     }
 
-    addToCart = (mobile) => {
-        this.setState({buttonDisabled: true});
+    const addToCart = (mobile) => {
+        setbuttonDisabled(true);
+        // this.setState({buttonDisabled: true});
         const requestBody = {
             query: `
                 mutation AddToCart($mobile: AddedMobileToCartInput!) {
@@ -146,44 +161,47 @@ class Mobiles extends Component {
             }
         };
 
-        axios.post('/graphql', requestBody, {headers: {
+        axios.post('http://localhost:8080/graphql', requestBody, {headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.props.token
+            'Authorization': 'Bearer ' + token
         }})
         .then(res => {
-            this.setState({cartAdded: true, cartAddedItem: res.data.data.addToCart, buttonDisabled: false});
+            console.log(res.data.data.addToCart);
+            setcartAdded(true);
+            setcartAddedItem(res.data.data.addToCart);
+            setbuttonDisabled(false);
+            // this.setState({cartAdded: true, cartAddedItem: res.data.data.addToCart, buttonDisabled: false});
         });
     };
 
-    render() {
         return (
             <>
             <h1 className="mobiles-title">Our <span>Mobiles</span></h1>
             <div className="mobiles">
-                {this.state.noMobiles ? <p className="Nomobiles">No Mobiles Here Yet!!</p> : 
-                            <AllMobiles mobiles={this.state.mobiles} 
-                                        mobilesExist={this.state.mobiles.length > 0}
-                                        clickedEdit={this.onGoToEdit}
-                                        goToDetail={this.onGoToDetail}
-                                        addCart={this.addToCart}
-                                        buttonDisabled={this.state.buttonDisabled}/>
+                {noMobiles ? <p className="Nomobiles">No Mobiles Here Yet!!</p> : 
+                            <AllMobiles mobiles={mobiles} 
+                                        mobilesExist={mobiles.length > 0}
+                                        clickedEdit={onGoToEdit}
+                                        goToDetail={onGoToDetail}
+                                        addCart={addToCart}
+                                        buttonDisabled={buttonDisabled}/>
                 }
             </div>
-            {this.state.cartAdded
+            {cartAdded
              ?
-             <Backdrop show close={this.closeBackdrop}>
+             <Backdrop show close={closeBackdrop}>
              <div className="item-added-parent">
                  <h3>Item added To Cart</h3>
                  <div className="item-added-image">
-                     <img src={this.state.cartAddedItem.mobileId.imageUrl} alt="cart-mobile"/>
+                     <img src={cartAddedItem.mobileId.imageUrl} alt="cart-mobile"/>
                  </div>
-                 <p>{this.state.cartAddedItem.mobileId.title}</p>
-                 <p>Price: <span>${this.state.cartAddedItem.mobileId.price}</span></p>
+                 <p>{cartAddedItem.mobileId.title}</p>
+                 <p>Price: <span>${cartAddedItem.mobileId.price}</span></p>
                  <div style={{marginTop: '7px'}}>
-                     <Button clicked={this.closeBackdrop}>Continue Shopping</Button>
+                     <Button clicked={closeBackdrop}>Continue Shopping</Button>
                  </div>
                  <div style={{marginTop: '5px'}}>
-                     <Button clicked={this.onGoToCart}>Go To Cart</Button>
+                     <Button clicked={onGoToCart}>Go To Cart</Button>
                  </div>
              </div>
             </Backdrop>
@@ -192,13 +210,6 @@ class Mobiles extends Component {
             }
             </>
         )
-    }
 }
 
-const mapStateToProps = state => {
-    return {
-        token: state.token
-    }
-}
-
-export default connect(mapStateToProps)(Mobiles);
+export default mobiles;

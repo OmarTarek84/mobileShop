@@ -1,19 +1,17 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import MobileDetail from '../../components/Mobile-detail/Mobile-detail';
 import axios from 'axios';
-import {connect} from 'react-redux';
+import {useSelector} from 'react-redux';
 
-class MobileDetailContainer extends Component {
-    state = {
-        filteredMobile: null,
-        buttonDisabled: false
-    }
-    componentWillMount() {
-        this.setState({filteredMobile: JSON.parse(localStorage.getItem('filteredMobile'))});
-    }
+const mobileDetailContainer = (props) => {
+    const [buttonDisabled, setbuttonDisabled] = useState(false);
+    const filteredMobile = JSON.parse(localStorage.getItem('filteredMobile'));
 
-    addToCart = (id, title, description, model, price, imageUrl) => {
-        this.setState({buttonDisabled: true});
+    const token = useSelector(state => state.auth.token);
+    const userId = useSelector(state => state.auth.userId);
+
+    const addToCart = (id, title, description, model, price, imageUrl) => {
+        setbuttonDisabled(true);
         const requestBody = {
             query: `
                 mutation AddToCart($mobile: AddedMobileToCartInput!) {
@@ -50,44 +48,35 @@ class MobileDetailContainer extends Component {
 
         axios.post('/graphql', requestBody, {headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.props.token
+            'Authorization': 'Bearer ' + token
         }})
         .then(res => {
-            this.props.history.push('/cart');
+            props.history.push('/cart');
         });
     };
 
-    onGoToMobiles = () => {
-        this.props.history.push('/');
+    const onGoToMobiles = () => {
+        props.history.push('/');
     }
-    render() {
         return (
             <div>
-                <MobileDetail title={this.state.filteredMobile.title}
-                              description={this.state.filteredMobile.description}
-                              price={this.state.filteredMobile.price}
-                              model={this.state.filteredMobile.model}
-                              onGoToMobiles={this.onGoToMobiles}
-                              date={this.state.filteredMobile.createdAt}
-                              firstname={this.state.filteredMobile.userId.firstname}
-                              id={this.state.filteredMobile._id}
-                              lastname={this.state.filteredMobile.userId.lastname}
-                              useremail={this.state.filteredMobile.userId.email}
-                              image={this.state.filteredMobile.imageUrl}
-                              addToCart={this.addToCart}
-                              onDisabled={this.state.buttonDisabled}
-                              mobileUserId={this.state.filteredMobile.userId._id}
-                              userSignedin={this.props.userId} />
+                <MobileDetail title={filteredMobile.title}
+                              description={filteredMobile.description}
+                              price={filteredMobile.price}
+                              model={filteredMobile.model}
+                              onGoToMobiles={onGoToMobiles}
+                              date={filteredMobile.createdAt}
+                              firstname={filteredMobile.userId.firstname}
+                              id={filteredMobile._id}
+                              lastname={filteredMobile.userId.lastname}
+                              useremail={filteredMobile.userId.email}
+                              image={filteredMobile.imageUrl}
+                              addToCart={addToCart}
+                              onDisabled={buttonDisabled}
+                              mobileUserId={filteredMobile.userId._id}
+                              userSignedin={userId} />
             </div>
         )
     }
-}
 
-const mapStateToProps = state => {
-    return {
-        token: state.token,
-        userId: state.userId
-    }
-}
-
-export default connect(mapStateToProps)(MobileDetailContainer);
+export default mobileDetailContainer;

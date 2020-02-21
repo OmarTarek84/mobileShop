@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import {BrowserRouter} from 'react-router-dom';
 import {Provider} from 'react-redux';
-import {createStore, applyMiddleware, compose} from 'redux';
+import {createStore, applyMiddleware, compose, combineReducers} from 'redux';
 import AuthReducer from './store/Reducers/auth';
 import thunk from 'redux-thunk';
 
@@ -17,9 +17,13 @@ const logger = store => {
     };
 };
 
+const rootReducer = combineReducers({
+    auth: AuthReducer
+});
+
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-      const store = createStore(AuthReducer, composeEnhancers(
+      const store = createStore(rootReducer, composeEnhancers(
         applyMiddleware(logger, thunk)
       ));
 

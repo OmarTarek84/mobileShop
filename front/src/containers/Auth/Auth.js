@@ -164,7 +164,7 @@ class Auth extends Component {
                 }
             };
 
-        axios.post('/graphql', JSON.stringify(requestBody), {headers: {
+        axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
             'Content-Type': 'application/json'
         }}).then(resData => {
                 this.props.history.push('/signin');
