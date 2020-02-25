@@ -1,33 +1,53 @@
-import React, { Component } from 'react';
-import Carts from '../../components/Carts/Carts';
-import {connect} from 'react-redux';
-import axios from 'axios';
-import Spinner from '../../components/UI/Spinner/Spinner';
+import React, { useState, useEffect } from "react";
+import Carts from "../../components/Carts/Carts";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import Spinner from "../../components/UI/Spinner/Spinner";
 
-class CartContainer extends Component {
-    isActive = true;
-    state = {
-        carts: [],
-        noItemsInCart: false,
-        quantity: 1,
-        totalPrice: 0,
-        isLoading: false,
-        onDisabled: false,
-        showPayment: false
+const cart = props => {
+  const [carts, setCarts] = useState([]);
+  const [noItemsInCart, setnoItemsInCart] = useState(false);
+  const [quantity, setquantity] = useState(0);
+  const [totalPrice, settotalPrice] = useState(0);
+  const [isLoading, setisLoading] = useState(false);
+  const [onDisabled, setonDisabled] = useState(false);
+  const [showPayment, setshowPayment] = useState(false);
+
+  const token = useSelector(state => state.auth.token);
+  const userId = useSelector(state => state.auth.userId);
+  const firstname = useSelector(state => state.auth.firstname);
+
+  useEffect(() => {
+    onFetchCarts();
+  }, [onFetchCarts]);
+
+  const fetchCartSuccess = resData => {
+    let price = 0;
+    let cartTarget = [];
+    if (resData.data.data.cart) {
+        cartTarget = resData.data.data.cart;
+    } else {
+        cartTarget = resData.data.data.removeCart;
     }
-
-    componentDidMount() {
-        this.onFetchCarts();
+    console.log(cartTarget);
+    cartTarget.map(car => {
+      price += +car.mobileId.price * car.quantity;
+      settotalPrice(price);
+    });
+    if (cartTarget.length <= 0) {
+      setnoItemsInCart(true);
+    } else {
+      setCarts(cartTarget);
+      setnoItemsInCart(false);
     }
+    setisLoading(false);
+  };
 
-    componentWillUnmount() {
-        this.isActive = false;
-    }
+  const onFetchCarts = () => {
+    setisLoading(true);
 
-    onFetchCarts = () => {
-        this.setState({isLoading: true});
-        const requestBody = {
-            query: `
+    const requestBody = {
+      query: `
                 query Cart($userId: String) {
                     cart(userId: $userId) {
                         _id
@@ -47,41 +67,34 @@ class CartContainer extends Component {
                   }
                 }
             `,
-            variables: {
-                userId: localStorage.getItem('userId')
-            }
-        };
-        axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.props.token
-        }}).then(resData => {
-            if (this.isActive) {
-                resData.data.data.cart.map(car => {
-                    this.setState(prevState => {
-                        return {
-                            totalPrice: prevState.totalPrice += (car.mobileId.price * car.quantity)
-                        };
-                    });
-                });
-                if (resData.data.data.cart.length <= 0) {
-                    this.setState({noItemsInCart: true, isLoading: false});
-                } else {
-                    this.setState({carts: resData.data.data.cart, noItemsInCart: false, isLoading: false});
-                }
-            }
-            })
-            .catch(err => {
-                this.setState({isLoading: false, noItemsInCart: true});
-                setTimeout(() => {
-                    this.props.history.push('/authenticate');
-                }, 4000);
-            });
-    }
+      variables: {
+        userId: localStorage.getItem("userId")
+      }
+    };
+    axios
+      .post("http://localhost:8080/graphql", JSON.stringify(requestBody), {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + props.token
+        }
+      })
+      .then(resData => {
+        fetchCartSuccess(resData);
+      })
+      .catch(err => {
+        console.log(err);
+        setisLoading(false);
+        setnoItemsInCart(true);
+        setTimeout(() => {
+          props.history.push("/authenticate");
+        }, 4000);
+      });
+  };
 
-    onCartIncrement = (id) => {
-        this.setState({isLoading: true});
-        const requestBody = {
-            query: `
+  const onCartIncrement = id => {
+    setisLoading(true);
+    const requestBody = {
+      query: `
                 mutation IncrementItemToCart($cartId: String!) {
                     incrementItemToCart(cartId: $cartId) {
                         quantity
@@ -96,33 +109,39 @@ class CartContainer extends Component {
                       }
                 }
             `,
-            variables: {
-                cartId: id
-            }
-        };
-        
-        axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.props.token
-        }}).then(resData => {
-                let existingCart = [...this.state.carts];
-                const filteredCartIndex = existingCart.findIndex(p => {
-                    return p._id === id;
-                });
-                existingCart[filteredCartIndex].quantity += 1;
-                const newPrice = this.state.totalPrice + resData.data.data.incrementItemToCart.mobileId.price;
-                this.setState({carts: existingCart, totalPrice: newPrice, isLoading: false});
-            })
-            .catch(err => {
-                this.setState({isLoading: false});
-            });
-
+      variables: {
+        cartId: id
+      }
     };
 
-    onCartDecrement = (id) => {
-        this.setState({isLoading: true});
-        const requestBody = {
-            query: `
+    axios
+      .post("http://localhost:8080/graphql", JSON.stringify(requestBody), {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        }
+      })
+      .then(resData => {
+        let existingCart = [...carts];
+        const filteredCartIndex = existingCart.findIndex(p => {
+          return p._id === id;
+        });
+        existingCart[filteredCartIndex].quantity += 1;
+        const newPrice =
+          totalPrice + resData.data.data.incrementItemToCart.mobileId.price;
+        setisLoading(false);
+        setCarts(existingCart);
+        settotalPrice(newPrice);
+      })
+      .catch(err => {
+        setisLoading(false);
+      });
+  };
+
+  const onCartDecrement = id => {
+    setisLoading(true);
+    const requestBody = {
+      query: `
                 mutation DecrementItemToCart($cartId: String!) {
                     decrementItemToCart(cartId: $cartId) {
                         quantity
@@ -137,91 +156,122 @@ class CartContainer extends Component {
                       }
                 }
             `,
-            variables: {
-                cartId: id
-            }
-        };
-        
-        axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.props.token
-        }}).then(resData => {
-                let existingCart = [...this.state.carts];
-                const filteredCartIndex = existingCart.findIndex(p => {
-                    return p._id === id;
-                });
-                const filteredCart = existingCart.find(p => {
-                    return p._id === id;
-                });
-                let newPrice;
-                if (existingCart[filteredCartIndex].quantity > 1) {
-                    existingCart[filteredCartIndex].quantity -= 1;
-                    newPrice = this.state.totalPrice - resData.data.data.decrementItemToCart.mobileId.price;
-                } else {
-                    existingCart.splice(id, 1);
-                    newPrice = this.state.totalPrice - filteredCart.mobileId.price;
-                    if (existingCart.length <= 0) {
-                        this.setState({noItemsInCart: true});
-                    }
-                }
-                this.setState({carts: existingCart, totalPrice: newPrice, isLoading: false});
-            })
-            .catch(err => {
-                this.setState({isLoading: false});
-            });
+      variables: {
+        cartId: id
+      }
     };
 
-    onClearCart = () => {
-        this.setState({isLoading: true});
-        const requestBody = {
-            query: `
+    axios
+      .post("http://localhost:8080/graphql", JSON.stringify(requestBody), {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        }
+      })
+      .then(resData => {
+        let existingCart = [...carts];
+        const filteredCartIndex = existingCart.findIndex(p => {
+          return p._id === id;
+        });
+        const filteredCart = existingCart.find(p => {
+          return p._id === id;
+        });
+        let newPrice;
+        if (existingCart[filteredCartIndex].quantity > 1) {
+          existingCart[filteredCartIndex].quantity -= 1;
+          newPrice =
+            totalPrice - resData.data.data.decrementItemToCart.mobileId.price;
+        } else {
+          existingCart.splice(id, 1);
+          newPrice = totalPrice - filteredCart.mobileId.price;
+          if (existingCart.length <= 0) {
+            setnoItemsInCart(true);
+          }
+        }
+        setCarts(existingCart);
+        settotalPrice(newPrice);
+        setisLoading(false);
+      })
+      .catch(err => {
+        setisLoading(false);
+      });
+  };
+
+  const onClearCart = () => {
+    setisLoading(true);
+    const requestBody = {
+      query: `
                 mutation {
                     clearCart {
                     email
                     }
                 }  
             `
-        };
-        axios.post('http://localhost:8080/graphql', requestBody, {headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.props.token
-        }})
-        .then(resData => {
-            this.setState({totalPrice: 0, noItemsInCart: true, isLoading: false});
-        });
     };
+    axios
+      .post("http://localhost:8080/graphql", requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        }
+      })
+      .then(resData => {
+        settotalPrice(0);
+        setnoItemsInCart(true);
+        setisLoading(false);
+      });
+  };
 
-    removeCart = (id) => {
-        this.setState({isLoading: true});
-        const requestBody = {
-            query: `
+  const removeCart = id => {
+    setisLoading(true);
+    const requestBody = {
+      query: `
                 mutation RemoveCart($cartId: String!) {
                     removeCart(cartId: $cartId) {
-                        email
+                        _id
+                        mobileId {
+                            _id
+                            title
+                            imageUrl
+                            price
+                        }
+                        userId {
+                            _id
+                            email
+                            firstname
+                            lastname
+                        }
+                        quantity
                       }
                 }
             `,
-            variables: {
-                cartId: id
-            }
-        };
-        axios.post('http://localhost:8080/graphql', requestBody, {headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.props.token
-        }})
-        .then(resData => {
-            this.onFetchCarts();
-            this.setState({totalPrice: 0, isLoading: false});
-        })
-        .catch(err => {
-            this.setState({isLoading: false});
-        });
+      variables: {
+        cartId: id
+      }
     };
+    axios
+      .post("http://localhost:8080/graphql", requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        }
+      })
+      .then(resData => {
+        fetchCartSuccess(resData);
+        console.log(carts);
+        // onFetchCarts();
+        // settotalPrice(0);
+        // setisLoading(false);
+      })
+      .catch(err => {
+        setisLoading(false);
+      });
+  };
 
-    onOrder = () => {
-        this.setState({onDisabled: true});
-        const requestBody = {
-            query: `
+  const onOrder = () => {
+    setonDisabled(true);
+    const requestBody = {
+      query: `
             mutation {
                 createOrder {
                   order {
@@ -236,60 +286,60 @@ class CartContainer extends Component {
                 }
               }
             `
-        };
-
-        axios.post('http://localhost:8080/graphql', requestBody, {headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + this.props.token
-        }})
-        .then(resData => {
-            console.log(resData);
-            this.props.history.push('/orders');
-        })
-        .catch(err => {
-        });
-
     };
 
-    backdropClose = () => {
-        this.setState({showPayment: false});
-    }
+    axios
+      .post("http://localhost:8080/graphql", requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        }
+      })
+      .then(resData => {
+        console.log(resData);
+        props.history.push("/orders");
+      })
+      .catch(err => {});
+  };
 
-    render() {
-        return (
-            <div>
-                {this.state.isLoading
-                 ?
-                 <div className="spinner-parent">
-                     <Spinner />
-                 </div>
-                 :
-                 this.state.noItemsInCart
-                    ?
-                    <h1 style={{textAlign: 'center', paddingTop: '40px'}}>No Items In Your Cart</h1>
-                    :
-                   <>
-                   <h1 style={{textAlign: 'center', paddingTop: '30px', paddingBottom: '30px'}}>Your <span style={{color: '#07393C'}}>Cart</span></h1>
-                   <Carts carts={this.state.carts}
-                          onIncrementCart={this.onCartIncrement}
-                          onDecrementCart={this.onCartDecrement}
-                          subTotalPrice={this.state.totalPrice}
-                          clearCart={this.onClearCart}
-                          onRemoveCart={this.removeCart}
-                          onOrder={this.onOrder} />
-                   </>
-                 }
-            </div>
-        )
-    }
-}
+  const backdropClose = () => {
+    setshowPayment(false);
+  };
 
-const mapStateToProps = state => {
-    return {
-        userId: state.userId,
-        token: state.token,
-        firstname: state.firstname
-    }
-}
+  return (
+    <div>
+      {isLoading ? (
+        <div className="spinner-parent">
+          <Spinner />
+        </div>
+      ) : noItemsInCart ? (
+        <h1 style={{ textAlign: "center", paddingTop: "40px" }}>
+          No Items In Your Cart
+        </h1>
+      ) : (
+        <>
+          <h1
+            style={{
+              textAlign: "center",
+              paddingTop: "30px",
+              paddingBottom: "30px"
+            }}
+          >
+            Your <span style={{ color: "#07393C" }}>Cart</span>
+          </h1>
+          <Carts
+            carts={carts}
+            onIncrementCart={onCartIncrement}
+            onDecrementCart={onCartDecrement}
+            subTotalPrice={totalPrice}
+            clearCart={onClearCart}
+            onRemoveCart={removeCart}
+            onOrder={onOrder}
+          />
+        </>
+      )}
+    </div>
+  );
+};
 
-export default connect(mapStateToProps)(CartContainer);
+export default cart;

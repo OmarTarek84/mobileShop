@@ -105,6 +105,7 @@ const mobiles = (props) => {
         axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
             'Content-Type': 'application/json',
         }}).then(resData => {
+            console.log(resData);
                     const mobiles = resData.data.data.mobiles;
                     if (mobiles.length <= 0) {
                         setNoMobiles(true);
@@ -167,8 +168,8 @@ const mobiles = (props) => {
         }})
         .then(res => {
             console.log(res.data.data.addToCart);
-            setcartAdded(true);
             setcartAddedItem(res.data.data.addToCart);
+            setcartAdded(true);
             setbuttonDisabled(false);
             // this.setState({cartAdded: true, cartAddedItem: res.data.data.addToCart, buttonDisabled: false});
         });

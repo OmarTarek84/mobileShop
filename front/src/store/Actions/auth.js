@@ -31,7 +31,7 @@ export const login = (token, userId, firstname) => {
     localStorage.setItem('expDate', new Date().getTime() + (1 * 60 * 60 * 1000));
     return dispatch => {
         dispatch(authSuccess(token, userId, firstname));
-        dispatch(signoutafterOneHour());
+        // dispatch(signoutafterOneHour());
     };
 };
 

@@ -11,9 +11,9 @@ module.exports = {
         const price = +args.mobileInput.price;
         const model = args.mobileInput.model;
         const image = args.mobileInput.imageUrl;
-        if (!req.isAuth) {
-            throw new Error('UnAuthorized');
-        }
+        // if (!req.isAuth) {
+        //     throw new Error('UnAuthorized');
+        // }
 
         const newMobile = new Mobile({
             title: title,

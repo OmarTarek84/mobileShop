@@ -1,0 +1,39 @@
+.inputParent {
+    margin-top: 7%;
+}
+
+input.border-red {
+    border: 1px solid red;
+}
+
+input.border-green {
+    border: 1px solid green;
+}
+
+.errormessage {
+    color: red;
+}
+
+select {
+    width: 100%;
+    padding: 7px;
+    border-radius: 2px;
+    outline: none;
+}
+
+input[type="file"] {
+    border: none;
+}
+
+.passport {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.passport a {
+    text-decoration: none;
+    background-color: red;
+    color: white;
+    padding: 9px 13px;
+    border-radius: 8px;
+}

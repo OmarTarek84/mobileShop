@@ -1,184 +1,107 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from "react";
 
-import Input from '../../components/Input/Input';
-import Button from '../../components/UI/Button/Button';
-import axios from 'axios';
-import {connect} from 'react-redux';
-import queryString from 'querystring';
+import Input from "../../shared/Input/Input";
+import Button from "../../components/UI/Button/Button";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import queryString from "querystring";
+import { useForm } from "../../components/Inputs/CreateMobileInput";
+import "./CreateMobiles.css";
+import {
+  VALIDATOR_REQUIRE,
+  VALIDATOR_ISNUMBER,
+  VALIDATOR_MINLENGTH,
+  VALIDATOR_MAXLENGTH
+} from "../../shared/validators/Validators";
 
-class CreateMobiles extends Component {
+const createMobiles = props => {
+  const [formState, inputHandler, setFormData] = useForm(
+    {
+      title: {
+        value: "",
+        isValid: false
+      },
+      description: {
+        value: "",
+        isValid: false
+      },
+      price: {
+        value: "",
+        isValid: false
+      },
+      model: {
+        value: "samsung",
+        isValid: true
+      }
+    },
+    false
+  );
+  const token = useSelector(state => state.auth.token);
+  const userId = useSelector(state => state.auth.userId);
 
-    state = {
-        createMobileForm: {
-            Title: {
-                elementType: 'input',
-                elementConfig: {
-                    name: 'title',
-                    type: 'text'
-                },
-                validationRules: {
-                    required: true
-                },
-                value: '',
-                valid: false,
-                touched: false,
-            },
-            Description: {
-                elementType: 'textarea',
-                elementConfig: {
-                    name: 'description',
-                    type: 'text'
-                },
-                validationRules: {
-                    required: true,
-                    maxLength: true
-                },
-                value: '',
-                valid: false,
-                touched: false,
-            },
-            Price: {
-                elementType: 'input',
-                elementConfig: {
-                    name: 'price',
-                    type: 'number'
-                },
-                validationRules: {
-                    required: true,
-                },
-                value: '',
-                valid: false,
-                touched: false
-            },
-            Model: {
-                elementType: 'select',
-                elementConfig: {
-                    options: [
-                        {value: 'samsung', displayValue: 'Samsung'},
-                        {value: 'iphone', displayValue: 'Iphone'},
-                        {value: 'oppo', displayValue: 'Oppo'},
-                        {value: 'vivo', displayValue: 'Vivo'},
-                        {value: 'nokia', displayValue: 'Nokia'},
-                        {value: 'lenovo', displayValue: 'Lenovo'},
-                        {value: 'sony', displayValue: 'Sony'},
-                    ]
-                },
-                validationRules: {
-                    required: true,
-                    minLength: true
-                },
-                value: 'samsung',
-                valid: true,
-                touched: false
-            },
-            mobile_Picture: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'file',
-                    name: 'pic',
-                    accept: '.png, .jpg, .jpeg'
-                },
-                validationRules: {
-                    required: true,
-                },
-                value: '',
-                imageValue: '',
-                valid: false,
-                touched: false
-            },
-        },
-        formIsValid: false,
-        mode: 'create',
-        filteredMobile: null,
-        file: null,
-        imageSelected: null
-    }
+  const [file, setFile] = useState(null);
+  const [imageSelected, setImageSelected] = useState(null);
+  const [mode, setMode] = useState('create');
 
-    changeInputHandler = (event, inputIdentifier) => {
-        const createMobileForm = {...this.state.createMobileForm};
-        const stateElement = {...createMobileForm[inputIdentifier]};
-        stateElement.value = event.target.value;
-        if (inputIdentifier === 'mobile_Picture' && event.target.files[0]) {
-            const file = event.target.files[0];
-            this.setState({file: file, imageSelected: URL.createObjectURL(file)});
-        }
-        stateElement.touched = true;
-        stateElement.valid = this.checkValidity(stateElement.value, stateElement.validationRules);
-        createMobileForm[inputIdentifier] = stateElement;
+  const fileChangeHandler = event => {
+    const targetedFile = event.target.files[0];
+    setFile(targetedFile);
+    setImageSelected(URL.createObjectURL(targetedFile));
+  };
 
-        let formValid = true;
-        for (let key in createMobileForm) {
-            formValid = createMobileForm[key].valid && formValid
-        }
-        this.setState({createMobileForm: createMobileForm, formIsValid: formValid});
-    }
+  // componentDidMount() {
+  //     let params = queryString.parse(this.props.location.search);
+  //     for (let key in params) {
+  //         if (params[key]) {
+  //             const editedMobile = this.props.location.state.filteredMobile;
+  //             const editForm = {...this.state.createMobileForm};
+  //             const title = {...editForm['Title']};
+  //             const description = {...editForm['Description']};
+  //             const price = {...editForm['Price']};
+  //             const model = {...editForm['Model']};
+  //             title.value = editedMobile.title;
+  //             title.valid = true;
+  //             description.value = editedMobile.description;
+  //             description.valid = true;
+  //             price.value = editedMobile.price;
+  //             price.valid = true;
+  //             model.value = editedMobile.model;
+  //             model.valid = true;
+  //             editForm['Title'] = title;
+  //             editForm['Description'] = description;
+  //             editForm['Price'] = price;
+  //             editForm['Model'] = model;
+  //             this.setState({createMobileForm: editForm, mode: 'edit', filteredMobile: editedMobile});
 
-    componentDidMount() {
-        let params = queryString.parse(this.props.location.search);
-        for (let key in params) {
-            if (params[key]) {
-                const editedMobile = this.props.location.state.filteredMobile;
-                const editForm = {...this.state.createMobileForm};
-                const title = {...editForm['Title']};
-                const description = {...editForm['Description']};
-                const price = {...editForm['Price']};
-                const model = {...editForm['Model']};
-                title.value = editedMobile.title;
-                title.valid = true;
-                description.value = editedMobile.description;
-                description.valid = true;
-                price.value = editedMobile.price;
-                price.valid = true;
-                model.value = editedMobile.model;
-                model.valid = true;
-                editForm['Title'] = title;
-                editForm['Description'] = description;
-                editForm['Price'] = price;
-                editForm['Model'] = model;
-                this.setState({createMobileForm: editForm, mode: 'edit', filteredMobile: editedMobile});
+  //         } else {
+  //             this.setState({mode: 'create'});
+  //         }
+  //     }
+  // }
 
-            } else {
-                this.setState({mode: 'create'});
-            }
-        }
-    }
-
-    checkValidity = (value, rules) => {
-        let isValid = true;
-        if (rules.required) {
-            isValid = value.trim() !== '' && isValid;
-        }
-
-        if (rules.maxLength) {
-            isValid = value.length < 150 && isValid;
-        }
-
-        return isValid;
-    }
-
-
-    onSubmitForm = (event) => {
-        event.preventDefault();
-        this.setState({formIsValid: false});
-        const formData = new FormData();
-        formData.append('pic', this.state.file);
-        fetch('http://localhost:8080/post-image', {
-            method: 'PUT',
-            headers: {
-              Authorization: 'Bearer ' + this.props.token
-            },
-            body: formData
-          }).then(res => res.json())
-          .then(fileResData => {
-              const urlImg = fileResData.filePath;
-              const title = this.state.createMobileForm.Title.value;
-              const description = this.state.createMobileForm.Description.value;
-              const price = +this.state.createMobileForm.Price.value;
-              const model = this.state.createMobileForm.Model.value;
-              let requestBody;
-              if (this.state.mode === 'create') {
-                  requestBody = {
-                      query: `
+  const onSubmitForm = event => {
+    event.preventDefault();
+    console.log(formState);
+    const formData = new FormData();
+    formData.append("pic", file);
+    fetch("http://localhost:8080/post-image", {
+      method: "PUT",
+      headers: {
+        Authorization: "Bearer " + token
+      },
+      body: formData
+    })
+      .then(res => res.json())
+      .then(fileResData => {
+        const urlImg = fileResData.filePath;
+        const title = formState.inputs.title.value;
+        const description = formState.inputs.description.value
+        const price = +formState.inputs.price.value;
+        const model = formState.inputs.model.value;
+        let requestBody;
+        if (mode === "create") {
+          requestBody = {
+            query: `
                           mutation CreateMobile($title: String!, $description: String!, $price: Float!, $model: String!, $imageUrl: String!) {
                               createMobile(mobileInput: {
                                   title: $title,
@@ -192,18 +115,17 @@ class CreateMobiles extends Component {
                                 }
                           }
                       `,
-                      variables: {
-                          title: title,
-                          description: description,
-                          price: price,
-                          model: model,
-                          imageUrl: urlImg
-                      }
-                  };
-              } else {
-      
-                  requestBody = {
-                      query: `
+            variables: {
+              title: title,
+              description: description,
+              price: price,
+              model: model,
+              imageUrl: urlImg
+            }
+          };
+        } else {
+          requestBody = {
+            query: `
                           mutation EditMobile($mobileId: String!, $newMobile: MobileInput!) {
                               editMobile(mobileId: $mobileId, newMobile: $newMobile) {
                                   _id
@@ -221,80 +143,122 @@ class CreateMobiles extends Component {
                                 }
                           }
                       `,
-                      variables: {
-                          mobileId: this.state.filteredMobile._id,
-                          newMobile: {
-                              title: this.state.createMobileForm.Title.value,
-                              description: this.state.createMobileForm.Description.value,
-                              price: +this.state.createMobileForm.Price.value,
-                              model: this.state.createMobileForm.Model.value,
-                              imageUrl: urlImg
-                          }
-                      }
-                  }
+            variables: {
+              mobileId: this.state.filteredMobile._id,
+              newMobile: {
+                title: this.state.createMobileForm.Title.value,
+                description: this.state.createMobileForm.Description.value,
+                price: +this.state.createMobileForm.Price.value,
+                model: this.state.createMobileForm.Model.value,
+                imageUrl: urlImg
               }
-      
-              return axios.post('http://localhost:8080/graphql', JSON.stringify(requestBody), {headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer ' + this.props.token
-              }}).then(resData => {
-                      this.props.history.push('/');
-                  })
-                  .catch(err => {
-                      console.log(err);
-                  });
-          })
-    }
-
-    render() {
-        let formElementsArray = [];
-        for (let key in this.state.createMobileForm) {
-            formElementsArray.push({
-                id: key,
-                config: this.state.createMobileForm[key]
-            });
+            }
+          };
         }
 
-        return (
-            <div className="formParent">
-                <h1>{this.state.mode === 'create' ? 'Create A New Mobile Item' : 'Edit Your Mobile'}</h1>
-                <form className="login-form" onSubmit={this.onSubmitForm} encType="multipart/form-data">
-                    {formElementsArray.map(formElement => {
-                        return (
-                                <Input key={formElement.id}
-                                       elementType={formElement.config.elementType}
-                                       elementConfig={formElement.config.elementConfig}
-                                       value={formElement.config.value}
-                                       label={formElement.id.toUpperCase()}
-                                       changed={(event) => this.changeInputHandler(event, formElement.id)}
-                                       invalid={!formElement.config.valid}
-                                       touched={formElement.config.touched} />
-                        )
-                    })}
-                    {this.state.imageSelected
-                     ?
-                     <div className="image-selected">
-                        <img src={this.state.imageSelected} alt="mobileImage" />
-                     </div>
-                     :
-                     null}
-                    <div className="submit-button">
-                        <Button type="submit"
-                                disabled={!this.state.formIsValid}>
-                            {this.state.mode === 'create' ? 'Create New Mobile' : 'Edit Mobile'}        
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        )
-    }
-}
+        return axios
+          .post("http://localhost:8080/graphql", JSON.stringify(requestBody), {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token
+            }
+          })
+          .then(resData => {
+            console.log(resData);
+            props.history.push("/");
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      });
+  };
 
-const mapStateToProps = state => {
-    return {
-        token: state.token,
-        userId: state.userId
-    }
-}
+  return (
+    <div className="formParent">
+      <h1>
+        {/* {state.mode === "create"
+          ? "Create A New Mobile Item"
+          : "Edit Your Mobile"} */}
+      </h1>
+      <form
+        className="login-form"
+        onSubmit={onSubmitForm}
+        encType="multipart/form-data"
+      >
+        <div className="form-control">
+          <div className="inputParent">
+            <Input
+              element="input"
+              id="title"
+              type="text"
+              label="Title"
+              validators={[VALIDATOR_REQUIRE()]}
+              onInput={inputHandler}
+            />
+          </div>
+          <div className="inputParent">
+            <Input
+              element="textarea"
+              id="description"
+              label="Description"
+              validators={[VALIDATOR_REQUIRE(), VALIDATOR_MAXLENGTH(150)]}
+              onInput={inputHandler}
+            />
+          </div>
+          <div className="inputParent">
+            <Input
+              element="input"
+              id="price"
+              type="number"
+              label="Price"
+              validators={[VALIDATOR_ISNUMBER(), VALIDATOR_REQUIRE()]}
+              onInput={inputHandler}
+            />
+          </div>
+          <div className="inputParent">
+            <Input
+              element="select"
+              id="model"
+              label="Mobile Model"
+              validators={[]}
+              onInput={inputHandler}
+              initialValue="samsung"
+              initialValid={true}
+            />
+          </div>
+          <div className="inputParent">
+            <label htmlFor="mobile_Picture">Select Your Mobile Photo</label>
+            <input
+              id="mobile_Picture"
+              type="file"
+              label="Select Mobile Photo"
+              onChange={fileChangeHandler}
+              accept=".png, .jpg, .jpeg"
+              name="pic"
+            />
+          </div>
+        </div>
+        {file ? (
+          <div className="image-selected">
+            <img src={imageSelected} alt="mobileImage" />
+          </div>
+        ) : null}
+        <div className="submit-button">
+          <Button
+            type="submit"
+            disabled={
+              !formState.inputs.title.isValid ||
+              !formState.inputs.description.isValid ||
+              !formState.inputs.price.isValid ||
+              !file
+            }
+          >
+            {"Create New Mobile"}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
-export default connect(mapStateToProps)(CreateMobiles);
+export default createMobiles;
