@@ -65,7 +65,6 @@ module.exports = {
             return User.findById(req.userId).populate('cart').then(user => {
               user.cart.pull(cart);
               return user.save().then(result => {
-                console.log(result.cart);
                 return result.cart.map(ca => {
                   return {
                     ...ca._doc,
@@ -114,9 +113,10 @@ module.exports = {
     //   throw new Error("Not Authorized");
     // }
     const cartId = args.cartId;
+    const cartQuantity = args.cartQuantity;
     return Cart.findById(cartId)
       .then(cart => {
-        cart.quantity = cart.quantity + 1;
+        cart.quantity = cartQuantity + 1;
         return cart.save().then(res => {
           return {
             ...res._doc,
@@ -136,9 +136,10 @@ module.exports = {
     //   throw new Error("Not Authorized");
     // }
     const cartId = args.cartId;
+    const cartQuantity = args.cartQuantity;
     return Cart.findById(cartId)
       .then(cart => {
-        cart.quantity = cart.quantity - 1;
+        cart.quantity = cartQuantity - 1;
         return cart.save().then(res => {
           if (res.quantity <= 0) {
             return Cart.findByIdAndDelete(cartId).then(cart => {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import BackDrop from '../components/UI/Backdrop/Backdrop';
+import BackDrop from '../shared/UI/Backdrop/Backdrop';
 
 const errorHandler = (WrappedComponent, axios) => {
     return class extends Component {

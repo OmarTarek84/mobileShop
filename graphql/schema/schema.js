@@ -89,8 +89,8 @@ module.exports = buildSchema(`
         addToCart(mobile: AddedMobileToCartInput!): Cart!
         removeCart(cartId: String!): [Cart]!
         clearCart: User!
-        incrementItemToCart(cartId: String!): Cart!
-        decrementItemToCart(cartId: String!): Cart
+        incrementItemToCart(cartId: String!, cartQuantity: Int!): Cart!
+        decrementItemToCart(cartId: String!, cartQuantity: Int!): Cart
         createOrder: Order!
     }
 
