@@ -1,4 +1,4 @@
-import { FETCH_MOBILES, CREATE_MOBILE, MOBILE_ERROR, MOBILES_LOADING } from "../Actions/ActionTypes";
+import { FETCH_MOBILES, CREATE_MOBILE } from "../Actions/ActionTypes";
 
 const initialState = {
     mobiles: [],

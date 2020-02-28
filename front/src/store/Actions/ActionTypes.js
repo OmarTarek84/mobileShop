@@ -10,3 +10,8 @@ export const MOBILE_ERROR = 'MOBILE_ERROR';
 export const MOBILES_LOADING = 'MOBILES_LOADING';
 
 export const FETCH_CARTS = 'FETCH_CARTS';
+export const ADD_TO_CART = 'ADD_TO_CART';
+export const INCREMENT_CART = 'INCREMENT_CART';
+export const DECREMENT_CART = 'DECREMENT_CART';
+export const REMOVE_ITEM_FROM_CART = 'REMOVE_ITEM_FROM_CART';
+export const CLEAR_CART = 'CLEAR_CART';

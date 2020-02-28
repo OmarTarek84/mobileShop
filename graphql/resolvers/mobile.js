@@ -11,6 +11,10 @@ module.exports = {
         const price = +args.mobileInput.price;
         const model = args.mobileInput.model;
         const image = args.mobileInput.imageUrl;
+
+        if (!title || !description || !price || !image) {
+            throw new Error('Please Fill all the required Fields');
+        }
         // if (!req.isAuth) {
         //     throw new Error('UnAuthorized');
         // }
@@ -42,7 +46,7 @@ module.exports = {
             });
         })
         .catch(err => {
-            console.log(err);
+            throw new Error(err);
         });
     },
 

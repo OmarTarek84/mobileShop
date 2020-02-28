@@ -2,7 +2,7 @@ import axios from "axios";
 import * as ActionTypes from "./ActionTypes";
 
 export const fetchMobiles = () => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     const requestBody = {
       query: `
             query {
@@ -24,24 +24,28 @@ export const fetchMobiles = () => {
               }
             `
     };
-    try {
-      const resData = await axios.post(
-        "http://localhost:8080/graphql",
-        JSON.stringify(requestBody),
-        {
-          headers: {
-            "Content-Type": "application/json"
+    if (getState().mobiles.mobiles.length <= 0) {
+      try {
+        const resData = await axios.post(
+          "http://localhost:8080/graphql",
+          JSON.stringify(requestBody),
+          {
+            headers: {
+              "Content-Type": "application/json"
+            }
           }
-        }
-      );
-      const mobiles = resData.data.data.mobiles;
-      console.log(resData);
-      dispatch({
-        type: ActionTypes.FETCH_MOBILES,
-        mobiles: mobiles
-      });
-    } catch (err) {
-      throw err;
+        );
+        const mobiles = resData.data.data.mobiles;
+        console.log(resData);
+        dispatch({
+          type: ActionTypes.FETCH_MOBILES,
+          mobiles: mobiles
+        });
+      } catch (err) {
+        throw err;
+      }
+    } else {
+      return null;
     }
   };
 };
@@ -110,7 +114,7 @@ export const createMobile = (title, description, price, model, file) => {
         type: ActionTypes.CREATE_MOBILE,
         mobile: response2.data.data.createMobile
       });
-    } catch (err1) {}
+    } catch (err1) {throw err1}
     // requestBody = {
     //   query: `
     //                     mutation EditMobile($mobileId: String!, $newMobile: MobileInput!) {

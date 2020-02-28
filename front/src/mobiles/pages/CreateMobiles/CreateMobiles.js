@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import Input from "../../../shared/forms/Input/Input";
 import Button from "../../../shared/UI/Button/Button";
-import axios from "axios";
-import { useSelector, useDispatch } from "react-redux";
+import {useDispatch } from "react-redux";
 import { useForm } from "../../../shared/forms/UseForm/UseForm";
 import "./CreateMobiles.css";
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_ISNUMBER,
-  VALIDATOR_MINLENGTH,
   VALIDATOR_MAXLENGTH
 } from "../../../shared/forms/validators/Validators";
 import * as ActionTypes from "../../../store/Actions/mobiles";
+import ErrorModal from '../../../shared/UI/ErrorModal/ErrorModal';
 
 const createMobiles = props => {
   const [formState, inputHandler, setFormData] = useForm(
@@ -40,6 +39,7 @@ const createMobiles = props => {
 
   const [file, setFile] = useState(null);
   const [imageSelected, setImageSelected] = useState(null);
+  const [mobError, setmobError] = useState(false);
   const [mode, setMode] = useState("create");
 
   const fileChangeHandler = event => {
@@ -89,10 +89,18 @@ const createMobiles = props => {
         formState.inputs.model.value,
         file
       )
-    ).then(() => props.history.push("/"));
+    ).then(() => {
+      props.history.push("/");
+      setmobError('');
+    })
+    .catch(err => {
+      console.log(err.response);
+      setmobError(err);
+    });
   };
 
   return (
+    <>
     <div className="formParent">
       <h1>
         {/* {state.mode === "create"
@@ -177,6 +185,22 @@ const createMobiles = props => {
         </div>
       </form>
     </div>
+    <ErrorModal
+        open={!!mobError}
+        onClose={() => setmobError("")}
+        errorMessage={
+          mobError.response &&
+          mobError.response.data &&
+          mobError.response.data.errors[0]
+            ? mobError.response.data.errors[0].message
+            : "Unknown Error, We'll fix it soon"
+        }
+        firstButton={true}
+        firstButtonMethod={() => setmobError("")}
+        firstButtonTitle="Try Again Now"
+        secondButton={false}
+      />
+    </>
   );
 };
 
