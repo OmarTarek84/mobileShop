@@ -12,14 +12,16 @@ module.exports = {
     const selectedMobile = args.mobile;
     return Cart.findOne({ mobileId: selectedMobile._id, userId: req.userId })
       .then(cart => {
+        console.log('carttttt', cart)
         if (cart || cart != null) {
           cart.quantity = cart.quantity + 1;
           return cart.save().then(res => {
+            console.log(res);
             return {
-              ...cart._doc,
-              _id: cart._doc._id.toString(),
-              userId: singleUser.bind(this, cart._doc.userId),
-              mobileId: singleMobile.bind(this, cart._doc.mobileId)
+              ...res._doc,
+              _id: res._doc._id.toString(),
+              userId: singleUser.bind(this, res._doc.userId),
+              mobileId: singleMobile.bind(this, res._doc.mobileId)
             };
           });
         } else {
@@ -193,9 +195,9 @@ module.exports = {
   },
 
   createOrder: (args, req) => {
-    if (req.userId === null) {
-      throw new Error(" Not Authorized");
-    }
+    // if (req.userId === null) {
+    //   throw new Error(" Not Authorized");
+    // }
     return Cart.find({ userId: req.userId })
       .populate("mobileId")
       .then(carts => {

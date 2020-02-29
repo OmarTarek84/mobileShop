@@ -9,6 +9,7 @@ import AuthReducer from './store/Reducers/auth';
 import thunk from 'redux-thunk';
 import mobileReducer from './store/Reducers/mobiles';
 import cartReducer from './store/Reducers/cart';
+import orderReducer from './store/Reducers/orders';
 
 const logger = store => {
     return next => {
@@ -22,7 +23,8 @@ const logger = store => {
 const rootReducer = combineReducers({
     auth: AuthReducer,
     mobiles: mobileReducer,
-    carts: cartReducer
+    carts: cartReducer,
+    orders: orderReducer
 });
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

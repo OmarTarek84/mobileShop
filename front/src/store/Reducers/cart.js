@@ -13,50 +13,77 @@ const cartReducer = (state = initialState, action) => {
         carts: action.carts,
         totalPrice: action.totalPrice
       };
-    case ActionTypes.INCREMENT_CART:
-      let existingCarts = [...state.carts];
-      const filteredCartIndex = existingCarts.findIndex(p => {
-        return p._id === action.id;
-      });
-      existingCarts[filteredCartIndex].quantity += 1;
-      let price = 0;
-      existingCarts.forEach(car => {
-        price += +car.mobileId.price * car.quantity;
-      });
+    case ActionTypes.INCREASE_CART_QUANTITY_BY_ONE:
+      let allCarts = [...state.carts];
+      const targetedItemIndex = allCarts.findIndex(
+        cart => cart._id === action.id
+      );
+      allCarts[targetedItemIndex].quantity += 1;
       return {
         ...state,
-        carts: existingCarts,
-        totalPrice: price
+        carts: allCarts,
+        totalPrice:
+          state.totalPrice + allCarts[targetedItemIndex].mobileId.price
       };
-    case ActionTypes.DECREMENT_CART:
-      let existingCartss = [...state.carts];
-      const filteredCartIndexx = existingCartss.findIndex(p => {
-        return p._id === action.id;
-      });
-      let finalPrice = state.totalPrice - existingCartss[filteredCartIndexx].mobileId.price;
-      if (existingCartss[filteredCartIndexx].quantity > 1) {
-        existingCartss[filteredCartIndexx].quantity -= 1;
-      } else {
-        existingCartss = existingCartss.filter(p => p._id !== existingCartss[filteredCartIndexx]._id)
+    case ActionTypes.DECREASE_CART_QUANTITY_BY_ONE:
+      let allCartss = [...state.carts];
+      const targetedItemIndexx = allCartss.findIndex(
+        cart => cart._id === action.id
+      );
+      let targetedItemPrice = 0;
+      targetedItemPrice = allCartss[targetedItemIndexx].mobileId.price;
+      allCartss[targetedItemIndexx].quantity -= 1;
+      if (allCartss[targetedItemIndexx].quantity == 0) {
+        allCartss.splice(targetedItemIndexx, 1);
       }
       return {
         ...state,
-        carts: existingCartss,
-        totalPrice: finalPrice
+        carts: allCartss,
+        totalPrice:
+          state.totalPrice - targetedItemPrice
       };
     case ActionTypes.ADD_TO_CART:
-        const targetedCart = state.carts.find(p => p.mobileId._id === action.cart.mobileId._id);
-        const targetedCartIndex = state.carts.findIndex(p => p.mobileId._id === action.cart.mobileId._id);
-        let cartsRes = [...state.carts];
-        if (!targetedCart) {
-            cartsRes.push(action.cart);
-        } else {
-            cartsRes[targetedCartIndex].quantity += 1;
-        }
-        return {
-            ...state,
-            carts: cartsRes
-        }
+      const targetedCart = state.carts.find(
+        p => p.mobileId._id === action.cart.mobileId._id
+      );
+      const targetedCartIndex = state.carts.findIndex(
+        p => p.mobileId._id === action.cart.mobileId._id
+      );
+      let cartsRes = [...state.carts];
+      if (!targetedCart) {
+        cartsRes.push(action.cart);
+      } else {
+        cartsRes[targetedCartIndex].quantity += 1;
+      }
+      return {
+        ...state,
+        carts: cartsRes
+      };
+    case ActionTypes.REMOVE_ITEM_FROM_CART:
+      const allCartsData = [...state.carts];
+      const targetCart = allCartsData.find(p => p._id === action.cartId);
+      const targetCartIndex = allCartsData.findIndex(p => p._id === action.cartId);
+      let priceBeforeRemove = state.totalPrice - (targetCart.quantity * targetCart.mobileId.price);
+      console.log('beforeee => ',allCartsData)
+      allCartsData.splice(targetCartIndex, 1);
+      console.log('after => ',allCartsData)
+      return {
+        ...state,
+        carts: allCartsData,
+        totalPrice: priceBeforeRemove
+      }
+    case ActionTypes.CLEAR_CART:
+      return {
+        ...state,
+        carts: [],
+        totalPrice: 0
+      }
+    case ActionTypes.ADD_ORDER:
+      return {
+        ...state,
+        carts: [],
+        totalPrice: 0
+      }
     default:
       return state;
   }

@@ -1,6 +1,6 @@
 import React, { useEffect, Suspense } from "react";
 import "./App.css";
-import { Route, Switch, Redirect, withRouter } from "react-router-dom";
+import { Route, Switch, withRouter } from "react-router-dom";
 import Layout from "./Layout/Layout/Layout";
 import * as ActionCreators from "./store/Actions/auth";
 import { useSelector, useDispatch } from "react-redux";

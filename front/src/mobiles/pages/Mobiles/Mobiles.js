@@ -11,7 +11,6 @@ import * as CartActionCreator from '../../../store/Actions/cart';
 
 const mobiles = props => {
   const [mobiles, setMobiles] = useState([]);
-  const [noMobiles, setNoMobiles] = useState(false);
   const [cartAdded, setcartAdded] = useState(false);
   const [cartAddedItem, setcartAddedItem] = useState(null);
   const [buttonDisabled, setbuttonDisabled] = useState(false);
@@ -20,7 +19,6 @@ const mobiles = props => {
 
   const dispatch = useDispatch();
 
-  const token = useSelector(state => state.auth.token);
   const mobilesData = useSelector(state => state.mobiles.mobiles);
 
   const socket = openSocket("http://localhost:8080");
@@ -76,7 +74,9 @@ const mobiles = props => {
   };
 
   const onGoToCart = () => {
-    props.history.push("/cart");
+    props.history.push({
+      pathname: "/cart",
+    });
   };
 
   const onFetchMobiles = useCallback(() => {

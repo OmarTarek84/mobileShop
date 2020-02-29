@@ -15,7 +15,7 @@ const carts = props => {
           imageUrl={cart.mobileId.imageUrl}
           quantity={cart.quantity}
           title={cart.mobileId.title}
-          totalPrice={cart.quantity * cart.mobileId.price}
+          totalPrice={(cart.quantity * cart.mobileId.price).toFixed(2)}
           onCartIncrement={props.onIncrementCart.bind(this, cart._id)}
           onCartDecrement={props.onDecrementCart.bind(this, cart._id)}
           removeCart={props.onRemoveCart.bind(this, cart._id)}

@@ -28,7 +28,14 @@ export const fetchCarts = () => {
         userId: getState().auth.userId
       }
     };
-    if (getState().carts.carts.length <= 0) {
+    let price = 0;
+    getState().carts.carts.forEach(car => {
+      price += +car.mobileId.price * car.quantity;
+    });
+    if (
+      getState().carts.carts.length <= 0 ||
+      getState().carts.totalPrice != price
+    ) {
       try {
         const response = await axios.post(
           "http://localhost:8080/graphql",
@@ -57,6 +64,24 @@ export const fetchCarts = () => {
   };
 };
 
+const increaseQuantityByOne = id => {
+  return async dispatch => {
+    dispatch({
+      type: ActionTypes.INCREASE_CART_QUANTITY_BY_ONE,
+      id: id
+    });
+  };
+};
+
+const decreaseQuantityByOne = id => {
+  return async dispatch => {
+    dispatch({
+      type: ActionTypes.DECREASE_CART_QUANTITY_BY_ONE,
+      id: id
+    });
+  };
+};
+
 export const incrementCartItem = id => {
   return async (dispatch, getState) => {
     const targetedItem = getState().carts.carts.find(cart => cart._id === id);
@@ -81,6 +106,7 @@ export const incrementCartItem = id => {
         cartQuantity: targetedItem.quantity
       }
     };
+    dispatch(increaseQuantityByOne(id));
 
     await axios.post(
       "http://localhost:8080/graphql",
@@ -92,11 +118,6 @@ export const incrementCartItem = id => {
         }
       }
     );
-
-    dispatch({
-      type: ActionTypes.INCREMENT_CART,
-      id: id
-    });
   };
 };
 
@@ -125,6 +146,11 @@ export const decrementCartItem = id => {
       }
     };
 
+    dispatch({
+      type: ActionTypes.DECREASE_CART_QUANTITY_BY_ONE,
+      id: id
+    });
+
     await axios.post(
       "http://localhost:8080/graphql",
       JSON.stringify(requestBody),
@@ -135,11 +161,6 @@ export const decrementCartItem = id => {
         }
       }
     );
-
-    dispatch({
-      type: ActionTypes.DECREMENT_CART,
-      id: id
-    });
   };
 };
 
@@ -190,9 +211,75 @@ export const addToCart = mobile => {
         }
       }
     );
+    console.log("responseeee", response.data.data.addToCart);
     dispatch({
       type: ActionTypes.ADD_TO_CART,
       cart: response.data.data.addToCart
     });
   };
 };
+
+export const removeCartItem = id => {
+  return async (dispatch, getState) => {
+    const requestBody = {
+      query: `
+                mutation RemoveCart($cartId: String!) {
+                    removeCart(cartId: $cartId) {
+                        _id
+                        mobileId {
+                            _id
+                            title
+                            imageUrl
+                            price
+                        }
+                        userId {
+                            _id
+                            email
+                            firstname
+                            lastname
+                        }
+                        quantity
+                      }
+                }
+            `,
+      variables: {
+        cartId: id
+      }
+    };
+    dispatch({
+      type: ActionTypes.REMOVE_ITEM_FROM_CART,
+      cartId: id
+    })
+    await axios
+      .post("http://localhost:8080/graphql", requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + getState().auth.token
+        }
+      });
+  };
+};
+
+export const clearCart = () => {
+  return async (dispatch, getState) => {
+    const requestBody = {
+      query: `
+                mutation {
+                    clearCart {
+                    email
+                    }
+                }  
+            `
+    };
+    dispatch({
+      type: ActionTypes.CLEAR_CART
+    })
+    await axios
+      .post("http://localhost:8080/graphql", requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + getState().auth.token
+        }
+      })
+  }
+}
