@@ -73,11 +73,21 @@ const increaseQuantityByOne = id => {
   };
 };
 
-const decreaseQuantityByOne = id => {
-  return async dispatch => {
+const incrementError = (id) => {
+  return dispatch => {
     dispatch({
-      type: ActionTypes.DECREASE_CART_QUANTITY_BY_ONE,
-      id: id
+      type: ActionTypes.INCREMENT_CART_ERROR,
+      cartid: id
+    });
+  };
+};
+
+const decrementError = (id, item) => {
+  return dispatch => {
+    dispatch({
+      type: ActionTypes.DECREMENT_CART_ERROR,
+      cartid: id,
+      item: item
     });
   };
 };
@@ -107,17 +117,21 @@ export const incrementCartItem = id => {
       }
     };
     dispatch(increaseQuantityByOne(id));
-
-    await axios.post(
-      "http://localhost:8080/graphql",
-      JSON.stringify(requestBody),
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + getState().auth.token
+    try {
+      await axios.post(
+        "http://localhost:8080/graphql",
+        JSON.stringify(requestBody),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + getState().auth.token
+          }
         }
-      }
-    );
+      );
+    } catch(err) {
+      dispatch(incrementError(id));
+      throw err;
+    }
   };
 };
 
@@ -151,16 +165,22 @@ export const decrementCartItem = id => {
       id: id
     });
 
-    await axios.post(
-      "http://localhost:8080/graphql",
-      JSON.stringify(requestBody),
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + getState().auth.token
+    try {
+      await axios.post(
+        "http://localhost:8080/graphql",
+        JSON.stringify(requestBody),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + getState().auth.token
+          }
         }
-      }
-    );
+      );
+    } catch(err) {
+      dispatch(decrementError(id, targetedItem));
+      throw err;
+    }
+
   };
 };
 

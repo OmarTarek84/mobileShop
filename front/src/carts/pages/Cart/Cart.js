@@ -34,11 +34,17 @@ const cart = props => {
   }, [dispatch]);
 
   const onCartIncrement = id => {
-    dispatch(ActionCreators.incrementCartItem(id));
+    dispatch(ActionCreators.incrementCartItem(id))
+    .then(() => {})
+    .catch(err => {
+      setCartErr(err);
+    })
   };
 
   const onCartDecrement = id => {
-    dispatch(ActionCreators.decrementCartItem(id));
+    dispatch(ActionCreators.decrementCartItem(id))
+    .then(() => {})
+    .catch(err => setCartErr(err));
   };
 
   const onClearCart = () => {
@@ -111,11 +117,11 @@ const cart = props => {
             : "Unknown Error, We'll fix it soon"
         }
         firstButton={true}
-        firstButtonMethod={() => onFetchCarts()}
-        firstButtonTitle="Try Fetching Carts Again"
-        secondButton={true}
-        secondButtonMethod={ongotomobiles}
-        secondButtonTitle="return to shopping!"
+        firstButtonMethod={() => setCartErr("")}
+        firstButtonTitle="Try Again"
+        secondButton={false}
+        // secondButtonMethod={ongotomobiles}
+        // secondButtonTitle="return to shopping!"
       />
     </>
   );

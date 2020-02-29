@@ -5,6 +5,7 @@ import Orders from "../../components/Orders/Orders";
 import { useSelector } from "react-redux";
 import Spinner from "../../../shared/UI/Spinner/Spinner";
 import * as ActionCreators from '../../../store/Actions/orders';
+import ErrorModal from '../../../shared/UI/ErrorModal/ErrorModal';
 
 const ordersContainer = props => {
   const [isLoading, setisLoading] = useState(false);
@@ -41,12 +42,31 @@ const ordersContainer = props => {
     }
   }
   return (
+    <>
     <div className="orders">
       <h1>
         Your <span>Orders</span>
       </h1>
       {allOrders}
     </div>
+    <ErrorModal
+        open={!!orderError}
+        onClose={() => setOrderError("")}
+        errorMessage={
+          orderError.response &&
+          orderError.response.data &&
+          orderError.response.data.errors[0]
+            ? orderError.response.data.errors[0].message
+            : "Unknown Error, We'll fix it soon"
+        }
+        firstButton={true}
+        firstButtonMethod={onFetchOrders}
+        firstButtonTitle="Try Fetching Orders Again!!"
+        secondButton={false}
+        // secondButtonMethod={ongotocreate}
+        // secondButtonTitle="Create a new Mobile Product!"
+      />
+    </>
   );
 };
 

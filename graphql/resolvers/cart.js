@@ -12,7 +12,7 @@ module.exports = {
     const selectedMobile = args.mobile;
     return Cart.findOne({ mobileId: selectedMobile._id, userId: req.userId })
       .then(cart => {
-        console.log('carttttt', cart)
+        console.log('carttttt', cart);
         if (cart || cart != null) {
           cart.quantity = cart.quantity + 1;
           return cart.save().then(res => {
