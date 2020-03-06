@@ -114,44 +114,90 @@ export const createMobile = (title, description, price, model, file) => {
         type: ActionTypes.CREATE_MOBILE,
         mobile: response2.data.data.createMobile
       });
-    } catch (err1) {throw err1}
-    // requestBody = {
-    //   query: `
-    //                     mutation EditMobile($mobileId: String!, $newMobile: MobileInput!) {
-    //                         editMobile(mobileId: $mobileId, newMobile: $newMobile) {
-    //                             _id
-    //                             title
-    //                             description
-    //                             price
-    //                             model
-    //                             imageUrl
-    //                             userId {
-    //                                 _id
-    //                                 firstname
-    //                                 lastname
-    //                                 email
-    //                             }
-    //                           }
-    //                     }
-    //                 `,
-    //   variables: {
-    //     mobileId: this.state.filteredMobile._id,
-    //     newMobile: {
-    //       title: this.state.createMobileForm.Title.value,
-    //       description: this.state.createMobileForm.Description.value,
-    //       price: +this.state.createMobileForm.Price.value,
-    //       model: this.state.createMobileForm.Model.value,
-    //       imageUrl: urlImg
-    //     }
-    //   }
-    // };
+    } catch (err1) {
+      throw err1;
+    }
   };
+};
 
-  // .then(resData => {
-  //   console.log(resData);
-  //   props.history.push("/");
-  // })
-  // .catch(err => {
-  //   console.log(err);
-  // });
+export const editMobile = (id, title, description, price, model, imageUrl) => {
+  return async (dispatch, getState) => {
+    try {
+      let image;
+      const formData = new FormData();
+      if (typeof(imageUrl) === 'string') {
+        image = imageUrl;
+      } else {
+        formData.append("pic", imageUrl);
+        const response1 = await fetch("http://localhost:8080/post-image", {
+          method: "PUT",
+          headers: {
+            Authorization: "Bearer " + getState().auth.token
+          },
+          body: formData
+        });
+        const res1Json = await response1.json();
+        image = res1Json.filePath;
+      }
+      const requestBody = {
+        query: `
+                          mutation EditMobile($mobileId: String!, $newMobile: MobileInput!) {
+                              editMobile(mobileId: $mobileId, newMobile: $newMobile) {
+                                  _id
+                                  title
+                                  description
+                                  price
+                                  model
+                                  imageUrl
+                                  userId {
+                                      _id
+                                      firstname
+                                      lastname
+                                      email
+                                  }
+                                  createdAt
+                                  updatedAt
+                                }
+                          }
+                      `,
+        variables: {
+          mobileId: id,
+          newMobile: {
+            title: title,
+            description: description,
+            price: price,
+            model: model,
+            imageUrl: image
+          }
+        }
+      };
+  
+      const response = await axios.post(
+        "http://localhost:8080/graphql",
+        JSON.stringify(requestBody),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + getState().auth.token
+          }
+        }
+      );
+
+      const resData = response.data.data.editMobile;
+
+      dispatch({
+        type: ActionTypes.EDIT_MOBILE,
+        id: id,
+        title: resData.title,
+        description: resData.description,
+        model: resData.model,
+        price: resData.price,
+        imageUrl: resData.imageUrl
+      });
+      console.log('response =>', response);
+    } catch(err) {
+      throw err;
+    }
+
+  };
 };

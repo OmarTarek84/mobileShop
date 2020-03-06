@@ -1,8 +1,6 @@
 import React from 'react';
 import Button from '../../../../shared/UI/Button/Button';
 import './Mobile.css';
-import {withRouter} from 'react-router-dom';
-import {connect} from 'react-redux';
 
 const mobile = props => {
     return (
@@ -47,11 +45,4 @@ const mobile = props => {
     )
 };
 
-const mapStateToProps = state => {
-    return {
-        isAuthorized: state.token !== null,
-        userId: state.userId
-    }
-}
-
-export default connect(mapStateToProps)(withRouter(mobile));
+export default mobile;

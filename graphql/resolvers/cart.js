@@ -6,9 +6,9 @@ const { singleUser, singleMobile, transformMobile } = require("./merge");
 
 module.exports = {
   addToCart: (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error("Not Authorized");
-    // }
+    if (!req.isAuth) {
+      throw new Error("Not Authorized");
+    }
     const selectedMobile = args.mobile;
     return Cart.findOne({ mobileId: selectedMobile._id, userId: req.userId })
       .then(cart => {
@@ -55,9 +55,9 @@ module.exports = {
   },
 
   removeCart: (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error("Not Authorized");
-    // }
+    if (!req.isAuth) {
+      throw new Error("Not Authorized");
+    }
     const cartId = args.cartId;
     return Cart.findById(cartId)
       .populate("mobileId")
@@ -88,9 +88,9 @@ module.exports = {
   },
 
   clearCart: (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error("Not Authorized");
-    // }
+    if (!req.isAuth) {
+      throw new Error("Not Authorized");
+    }
     return Cart.deleteMany({ userId: req.userId }).then(res => {
       return User.findById(req.userId)
         .then(user => {
@@ -111,9 +111,9 @@ module.exports = {
   },
 
   incrementItemToCart: (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error("Not Authorized");
-    // }
+    if (!req.isAuth) {
+      throw new Error("Not Authorized");
+    }
     const cartId = args.cartId;
     const cartQuantity = args.cartQuantity;
     return Cart.findById(cartId)
@@ -134,9 +134,9 @@ module.exports = {
   },
 
   decrementItemToCart: (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error("Not Authorized");
-    // }
+    if (!req.isAuth) {
+      throw new Error("Not Authorized");
+    }
     const cartId = args.cartId;
     const cartQuantity = args.cartQuantity;
     return Cart.findById(cartId)
@@ -173,10 +173,10 @@ module.exports = {
       });
   },
 
-  cart: (args) => {
-    // if (!req.isAuth) {
-    //   throw new Error("UnAuthorized");
-    // }
+  cart: (args, req) => {
+    if (!req.isAuth) {
+      throw new Error("UnAuthorized");
+    }
     const userId = args.userId;
     return Cart.find({ userId: userId })
       .then(carts => {
@@ -195,9 +195,9 @@ module.exports = {
   },
 
   createOrder: (args, req) => {
-    // if (req.userId === null) {
-    //   throw new Error(" Not Authorized");
-    // }
+    if (req.userId === null) {
+      throw new Error(" Not Authorized");
+    }
     return Cart.find({ userId: req.userId })
       .populate("mobileId")
       .then(carts => {
@@ -250,9 +250,9 @@ module.exports = {
   },
 
   orders: (args, req) => {
-    // if (!req.isAuth) {
-    //     throw new Error('UnAuthorized');
-    // }
+    if (!req.isAuth) {
+        throw new Error('UnAuthorized');
+    }
     return Order.find({ userId: args.userId })
       .then(orders => {
         return orders.map(order => {

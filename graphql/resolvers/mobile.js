@@ -15,9 +15,9 @@ module.exports = {
         if (!title || !description || !price || !image) {
             throw new Error('Please Fill all the required Fields');
         }
-        // if (!req.isAuth) {
-        //     throw new Error('UnAuthorized');
-        // }
+        if (!req.isAuth) {
+            throw new Error('UnAuthorized');
+        }
 
         const newMobile = new Mobile({
             title: title,

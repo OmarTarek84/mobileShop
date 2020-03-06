@@ -20,8 +20,25 @@ const mobiles = props => {
   const dispatch = useDispatch();
 
   const mobilesData = useSelector(state => state.mobiles.mobiles);
+  const userId = useSelector(state => state.auth.userId);
+  const isAuthorized = useSelector(state => state.auth.token !== null);
 
   const socket = openSocket("http://localhost:8080");
+
+  const onFetchMobiles = useCallback(() => {
+    setmobError("");
+    setLoading(true);
+    dispatch(ActionCreators.fetchMobiles())
+      .then(() => {
+        setmobError("");
+        setLoading(false);
+      })
+      .catch(err => {
+        console.log(err.response);
+        setmobError(err);
+        setLoading(false);
+      });
+  }, [dispatch]);
 
   useEffect(() => {
     onFetchMobiles();
@@ -53,15 +70,12 @@ const mobiles = props => {
   // }
 
   const onGoToEdit = id => {
-    const filteredMobile = mobilesData.find(p => {
-      return p._id === id;
-    });
-    localStorage.setItem("filteredMobile", JSON.stringify(filteredMobile));
+
     props.history.push({
       pathname: "/edit/" + id,
       search: "?edit=true",
-      state: { filteredMobile: filteredMobile }
     });
+    
   };
 
   const onGoToDetail = id => {
@@ -78,21 +92,6 @@ const mobiles = props => {
       pathname: "/cart",
     });
   };
-
-  const onFetchMobiles = useCallback(() => {
-    setmobError("");
-    setLoading(true);
-    dispatch(ActionCreators.fetchMobiles())
-      .then(() => {
-        setmobError("");
-        setLoading(false);
-      })
-      .catch(err => {
-        console.log(err.response);
-        setmobError(err);
-        setLoading(false);
-      });
-  }, [dispatch]);
 
   const closeBackdrop = () => {
     setcartAdded(false);
@@ -133,8 +132,9 @@ const mobiles = props => {
           buttonDisabled={buttonDisabled}
           error={mobError}
           loading={!!loading}
+          userId={userId}
+          isAuthorized={isAuthorized}
         />
-        }
       </div>
       {cartAdded ? (
         <Backdrop show close={closeBackdrop}>

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback, useReducer } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import Input from "../../../shared/forms/Input/Input";
 import Button from "../../../shared/UI/Button/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "../../../shared/forms/UseForm/UseForm";
-import "./CreateMobiles.css";
+import "./UpdateMobiles.css";
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_ISNUMBER,
@@ -14,7 +14,13 @@ import * as ActionCreators from "../../../store/Actions/mobiles";
 import ErrorModal from "../../../shared/UI/ErrorModal/ErrorModal";
 import Spinner from "../../../shared/UI/Spinner/Spinner";
 
-const createMobiles = props => {
+const updateMobiles = props => {
+  const targetedMobile = useSelector(state =>
+    state.mobiles.mobiles.find(p => p._id === props.match.params.id)
+  );
+
+  const userId = useSelector(state => state.auth.userId);
+
   const [formState, inputHandler, setFormData] = useForm(
     {
       title: {
@@ -50,16 +56,33 @@ const createMobiles = props => {
     setImageSelected(URL.createObjectURL(targetedFile));
   };
 
+  const onFetchMobiles = useCallback(() => {
+    setLoading(true);
+    dispatch(ActionCreators.fetchMobiles())
+      .then(() => {
+        setLoading(false);
+      })
+      .catch(err => setmobError(err));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!targetedMobile) {
+      onFetchMobiles();
+    }
+  }, [dispatch, onFetchMobiles]);
+
   const onSubmitForm = event => {
     event.preventDefault();
-    console.log(formState);
+    const theFile = file ? file: targetedMobile.imageUrl;
+    console.log('ff',theFile);
     dispatch(
-      ActionCreators.createMobile(
+      ActionCreators.editMobile(
+        props.match.params.id,
         formState.inputs.title.value,
         formState.inputs.description.value,
         +formState.inputs.price.value,
         formState.inputs.model.value,
-        file
+        theFile
       )
     )
       .then(() => {
@@ -75,18 +98,16 @@ const createMobiles = props => {
   return (
     <>
       <div className="formParent">
-        <h1>
-          {!props.match.params.id
-            ? "Create A New Mobile Item"
-            : "Edit Your Mobile"}
-        </h1>
+        <h1>{"Edit Your Mobile"}</h1>
         <form
           className="login-form"
           onSubmit={onSubmitForm}
           encType="multipart/form-data"
         >
           <div className="form-control">
-            {!loading ? (
+            {!loading &&
+            targetedMobile &&
+            targetedMobile.userId._id === userId ? (
               <>
                 <div className="inputParent">
                   <Input
@@ -96,6 +117,8 @@ const createMobiles = props => {
                     label="Title"
                     validators={[VALIDATOR_REQUIRE()]}
                     onInput={inputHandler}
+                    initialValue={targetedMobile.title}
+                    initialValid={true}
                   />
                 </div>
                 <div className="inputParent">
@@ -105,6 +128,8 @@ const createMobiles = props => {
                     label="Description"
                     validators={[VALIDATOR_REQUIRE(), VALIDATOR_MAXLENGTH(150)]}
                     onInput={inputHandler}
+                    initialValue={targetedMobile.description}
+                    initialValid={true}
                   />
                 </div>
                 <div className="inputParent">
@@ -115,6 +140,8 @@ const createMobiles = props => {
                     label="Price"
                     validators={[VALIDATOR_ISNUMBER(), VALIDATOR_REQUIRE()]}
                     onInput={inputHandler}
+                    initialValue={targetedMobile.price}
+                    initialValid={true}
                   />
                 </div>
                 <div className="inputParent">
@@ -124,6 +151,8 @@ const createMobiles = props => {
                     label="Mobile Model"
                     validators={[]}
                     onInput={inputHandler}
+                    initialValue={targetedMobile.model}
+                    initialValid={true}
                   />
                 </div>
                 <div className="inputParent">
@@ -139,29 +168,42 @@ const createMobiles = props => {
                     name="pic"
                   />
                 </div>
+                <div className="submit-button">
+                  <Button
+                    type="submit"
+                    disabled={
+                      !formState.inputs.title.isValid ||
+                      !formState.inputs.description.isValid ||
+                      !formState.inputs.price.isValid ||
+                      (!file && !targetedMobile.imageUrl)
+                    }
+                  >
+                    {"Edit Your Mobile"}
+                  </Button>
+                </div>
               </>
+            ) : (!loading &&
+                targetedMobile &&
+                targetedMobile.userId._id !== userId) ||
+              (!targetedMobile && !loading) ? (
+              <ErrorModal
+                open={true}
+                onClose={() => props.history.push("/")}
+                errorMessage="Failed To load this mobile"
+                firstButton={true}
+                firstButtonMethod={() => props.history.push("/")}
+                firstButtonTitle="Return"
+                secondButton={false}
+              />
             ) : (
               <Spinner />
             )}
           </div>
-          {file ? (
+          {targetedMobile || imageSelected ? (
             <div className="image-selected">
-              <img src={imageSelected} alt="mobileImage" />
+              <img src={imageSelected || targetedMobile.imageUrl} alt="mobileImage" />
             </div>
           ) : null}
-          <div className="submit-button">
-            <Button
-              type="submit"
-              disabled={
-                !formState.inputs.title.isValid ||
-                !formState.inputs.description.isValid ||
-                !formState.inputs.price.isValid ||
-                !file
-              }
-            >
-              {"Create New Mobile"}
-            </Button>
-          </div>
         </form>
       </div>
       <ErrorModal
@@ -183,4 +225,4 @@ const createMobiles = props => {
   );
 };
 
-export default createMobiles;
+export default updateMobiles;

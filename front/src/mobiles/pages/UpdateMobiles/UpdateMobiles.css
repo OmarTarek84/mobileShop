@@ -42,6 +42,15 @@ input[type="file"] {
     border-radius: 8px;
 }
 
+.image-selected {
+    text-align: center;
+}
+
+.image-selected img {
+    width: 22%;
+    margin-top: 3%;
+}
+
 .submit-button {
     margin-top: 2%;
     text-align: center;

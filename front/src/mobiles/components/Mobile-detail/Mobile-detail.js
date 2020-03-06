@@ -26,7 +26,7 @@ const mobileDetail = props => {
                         <Button clicked={props.onGoToMobiles}>Back To Mobile List</Button>
                         {props.userSignedin !== props.mobileUserId
                          ?
-                         <Button clicked={props.addToCart.bind(this, props.id, props.title, props.description, props.model, props.price, props.image)}
+                         <Button clicked={props.addToCart.bind(this, props.mobile)}
                          disabled={props.onDisabled}>Add To Cart</Button>
                          :
                          null

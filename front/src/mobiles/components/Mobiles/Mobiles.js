@@ -23,6 +23,8 @@ const allMobiles = props => {
           image={mobile.imageUrl}
           addToCart={props.addCart.bind(this, mobile)}
           onDisabled={props.buttonDisabled}
+          userId={props.userId}
+          isAuthorized={props.isAuthorized}
         />
       );
     });

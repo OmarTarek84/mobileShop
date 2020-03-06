@@ -5,6 +5,7 @@ import Layout from "./Layout/Layout/Layout";
 import * as ActionCreators from "./store/Actions/auth";
 import { useSelector, useDispatch } from "react-redux";
 import Spinner from "./shared/UI/Spinner/Spinner";
+import UpdateMobiles from "./mobiles/pages/UpdateMobiles/UpdateMobiles";
 
 const Signin = React.lazy(() => {
   return import("./auth/pages/Signin/Signin");
@@ -82,6 +83,13 @@ const app = () => {
               path="/new"
               exact
               render={props => <CreateMobiles {...props} />}
+            />
+          ) : null}
+          {isAuthenticated ? (
+            <Route
+              path="/edit/:id"
+              exact
+              render={props => <UpdateMobiles {...props} />}
             />
           ) : null}
           {isAuthenticated ? (
