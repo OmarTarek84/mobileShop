@@ -30,7 +30,7 @@ export const fetchOrders = () => {
     if (getState().orders.orders.length <= 0) {
       try {
         const response = await axios.post(
-          "http://localhost:8080/graphql",
+          "/graphql",
           requestBody,
           {
             headers: {
@@ -75,7 +75,7 @@ export const addOrder = () => {
     };
 
     const response = await axios.post(
-      "http://localhost:8080/graphql",
+      "/graphql",
       requestBody,
       {
         headers: {

@@ -38,7 +38,7 @@ export const fetchCarts = () => {
     ) {
       try {
         const response = await axios.post(
-          "http://localhost:8080/graphql",
+          "/graphql",
           JSON.stringify(requestBody),
           {
             headers: {
@@ -118,7 +118,7 @@ export const incrementCartItem = id => {
     dispatch(increaseQuantityByOne(id));
     try {
       await axios.post(
-        "http://localhost:8080/graphql",
+        "/graphql",
         JSON.stringify(requestBody),
         {
           headers: {
@@ -166,7 +166,7 @@ export const decrementCartItem = id => {
 
     try {
       await axios.post(
-        "http://localhost:8080/graphql",
+        "/graphql",
         JSON.stringify(requestBody),
         {
           headers: {
@@ -221,7 +221,7 @@ export const addToCart = mobile => {
     };
 
     const response = await axios.post(
-      "http://localhost:8080/graphql",
+      "/graphql",
       requestBody,
       {
         headers: {
@@ -269,7 +269,7 @@ export const removeCartItem = id => {
       cartId: id
     })
     await axios
-      .post("http://localhost:8080/graphql", requestBody, {
+      .post("/graphql", requestBody, {
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + getState().auth.token
@@ -293,7 +293,7 @@ export const clearCart = () => {
       type: ActionTypes.CLEAR_CART
     })
     await axios
-      .post("http://localhost:8080/graphql", requestBody, {
+      .post("/graphql", requestBody, {
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + getState().auth.token

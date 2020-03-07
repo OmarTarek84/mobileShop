@@ -78,7 +78,7 @@ const auth = props => {
     };
 
     axios
-      .post("http://localhost:8080/graphql", JSON.stringify(requestBody), {
+      .post("/graphql", JSON.stringify(requestBody), {
         headers: {
           "Content-Type": "application/json"
         }

@@ -27,7 +27,7 @@ export const fetchMobiles = () => {
     if (getState().mobiles.mobiles.length <= 1) {
       try {
         const resData = await axios.post(
-          "http://localhost:8080/graphql",
+          "/graphql",
           JSON.stringify(requestBody),
           {
             headers: {
@@ -58,7 +58,7 @@ export const createMobile = (title, description, price, model, file) => {
       } else {
         const formData = new FormData();
         formData.append("pic", file);
-        const response1 = await fetch("http://localhost:8080/post-image", {
+        const response1 = await fetch("/post-image", {
           method: "PUT",
           headers: {
             Authorization: "Bearer " + getState().auth.token
@@ -104,7 +104,7 @@ export const createMobile = (title, description, price, model, file) => {
         }
       };
       const response2 = await axios.post(
-        "http://localhost:8080/graphql",
+        "/graphql",
         JSON.stringify(requestBody),
         {
           headers: {
@@ -155,7 +155,7 @@ export const editMobile = (id, title, description, price, model, imageUrl) => {
         image = imageUrl;
       } else {
         formData.append("pic", imageUrl);
-        const response1 = await fetch("http://localhost:8080/post-image", {
+        const response1 = await fetch("/post-image", {
           method: "PUT",
           headers: {
             Authorization: "Bearer " + getState().auth.token
@@ -199,7 +199,7 @@ export const editMobile = (id, title, description, price, model, imageUrl) => {
       };
   
       const response = await axios.post(
-        "http://localhost:8080/graphql",
+        "/graphql",
         JSON.stringify(requestBody),
         {
           headers: {

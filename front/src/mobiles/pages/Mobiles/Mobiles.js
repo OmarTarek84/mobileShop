@@ -22,7 +22,7 @@ const mobiles = props => {
   const userId = useSelector(state => state.auth.userId);
   const isAuthorized = useSelector(state => state.auth.token !== null);
 
-  const socket = openSocket("http://localhost:8080");
+  const socket = openSocket("/");
 
   const onFetchMobiles = useCallback(() => {
     setmobError("");
