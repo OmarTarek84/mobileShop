@@ -14,10 +14,6 @@ const ordersContainer = props => {
   const orderData = useSelector(state => state.orders.orders);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    onFetchOrders();
-  }, [onFetchOrders]);
-
   const onFetchOrders = useCallback(() => {
     setisLoading(true);
     dispatch(ActionCreators.fetchOrders())
@@ -30,6 +26,10 @@ const ordersContainer = props => {
       setisLoading(false);
     })
   });
+
+  useEffect(() => {
+    onFetchOrders();
+  }, [onFetchOrders]);
 
   let allOrders;
   if (isLoading) {

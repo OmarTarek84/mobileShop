@@ -1,10 +1,8 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import "./Auth.css";
 import Button from "../../../shared/UI/Button/Button";
 import axios from "axios";
 import Input from "../../../shared/forms/Input/Input";
-// import GoogleLogin from 'react-google-login';
-import * as ActionCreators from "../../../store/Actions/auth";
 import { useForm } from "../../../shared/forms/UseForm/UseForm";
 import {
   VALIDATOR_REQUIRE,
@@ -12,6 +10,7 @@ import {
   VALIDATOR_MATCHPASSWORDS,
   VALIDATOR_MINLENGTH
 } from "../../../shared/forms/validators/Validators";
+import ErrorModal from "../../../shared/UI/ErrorModal/ErrorModal";
 
 const auth = props => {
   const [formState, inputHandler] = useForm(
@@ -39,6 +38,8 @@ const auth = props => {
     },
     false
   );
+
+  const [authErr, setAutherr] = useState('');
 
   const onSubmitForm = event => {
     event.preventDefault();
@@ -85,7 +86,9 @@ const auth = props => {
       .then(resData => {
         props.history.push("/signin");
       })
-      .catch(err => {});
+      .catch(err => {
+        setAutherr(err);
+      });
   };
 
   // successGoogle = res => {
@@ -151,22 +154,20 @@ const auth = props => {
             SIGN UP!
           </Button>
         </div>
-        {/* <div>
-                        <GoogleLogin
-                         clientId=''
-                         buttonText="Google"
-                         onSuccess={this.successGoogle}
-                         onFailure={this.successGoogle} />
-                    </div> */}
       </form>
+      <ErrorModal
+        open={!!authErr}
+        onClose={() => setAutherr("")}
+        errorMessage={
+          authErr.response &&
+          authErr.response.data &&
+          authErr.response.data.errors[0]
+            ? authErr.response.data.errors[0].message
+            : "Unknown Error, We'll fix it soon"
+        }
+      />
     </div>
   );
 };
-
-// const mapDispatchToProps = dispatch => {
-//     return {
-//         onAuthGoogle: (data) => dispatch(ActionCreators.googleAuth(data))
-//     };
-// };
 
 export default auth;

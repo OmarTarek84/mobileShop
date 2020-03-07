@@ -7,10 +7,9 @@ import Backdrop from "../../../shared/UI/Backdrop/Backdrop";
 import Button from "../../../shared/UI/Button/Button";
 import openSocket from "socket.io-client";
 import ErrorModal from "../../../shared/UI/ErrorModal/ErrorModal";
-import * as CartActionCreator from '../../../store/Actions/cart';
+import * as CartActionCreator from "../../../store/Actions/cart";
 
 const mobiles = props => {
-  const [mobiles, setMobiles] = useState([]);
   const [cartAdded, setcartAdded] = useState(false);
   const [cartAddedItem, setcartAddedItem] = useState(null);
   const [buttonDisabled, setbuttonDisabled] = useState(false);
@@ -34,7 +33,6 @@ const mobiles = props => {
         setLoading(false);
       })
       .catch(err => {
-        console.log(err.response);
         setmobError(err);
         setLoading(false);
       });
@@ -42,46 +40,44 @@ const mobiles = props => {
 
   useEffect(() => {
     onFetchMobiles();
+  }, [dispatch, onFetchMobiles]);
+
+
+  useEffect(() => {
     socket.on("newMobile", data => {
-      setMobiles(currentMobiles => [...currentMobiles, data.mobile]);
-      // this.setState(prevState => {
-      //     return {
-      //         mobiles: prevState.mobiles.concat(data.mobile)
-      //     };
-      // });
+      dispatch(ActionCreators.createMobileSocket(data.mobile));
     });
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  useEffect(() => {
     socket.on("editedMobile", data => {
-      const mobileState = [...mobiles];
-      const filteredMobileIndex = mobileState.findIndex(mobile => {
-        return mobile._id === data.mobile._id;
-      });
-      mobileState[filteredMobileIndex] = data.mobile;
-      setMobiles(currentMobs => [...currentMobs, mobileState]);
-      // this.setState({mobiles: mobileState});
+      dispatch(
+        ActionCreators.editMobileSocket(
+          data.mobile._id,
+          data.mobile.title,
+          data.mobile.description,
+          data.mobile.price,
+          data.mobile.model,
+          data.mobile.imageUrl
+        )
+      );
     });
-  }, [onFetchMobiles, dispatch]);
-
-  // componentDidMount() {
-
-  // }
-
-  // componentWillUnmount() {
-  //     this.isActive = false;
-  // }
+    return () => {
+      socket.close();
+    };
+  }, []);
 
   const onGoToEdit = id => {
-
     props.history.push({
       pathname: "/edit/" + id,
-      search: "?edit=true",
+      search: "?edit=true"
     });
-    
   };
 
   const onGoToDetail = id => {
-    // const filteredMobile = mobilesData.find(p => {
-    //     return p._id === id;
-    // });
     props.history.push({
       pathname: "/mobile/" + id
     });
@@ -89,13 +85,12 @@ const mobiles = props => {
 
   const onGoToCart = () => {
     props.history.push({
-      pathname: "/cart",
+      pathname: "/cart"
     });
   };
 
   const closeBackdrop = () => {
     setcartAdded(false);
-    // this.setState({cartAdded: false});
   };
 
   const ongotocreate = () => {
@@ -104,17 +99,15 @@ const mobiles = props => {
 
   const addToCart = mobile => {
     setbuttonDisabled(true);
-    console.log(mobile)
-    // this.setState({buttonDisabled: true});
     dispatch(CartActionCreator.addToCart(mobile))
-    .then(() => {
-      setbuttonDisabled(false);
-      setcartAddedItem(mobile);
-      setcartAdded(true);
-    })
-    .catch(err => {
-      setbuttonDisabled(false)
-    });
+      .then(() => {
+        setbuttonDisabled(false);
+        setcartAddedItem(mobile);
+        setcartAdded(true);
+      })
+      .catch(err => {
+        setbuttonDisabled(false);
+      });
   };
 
   return (

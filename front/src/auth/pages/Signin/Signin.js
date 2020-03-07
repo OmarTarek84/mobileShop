@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {useState} from "react";
 import Button from "../../../shared/UI/Button/Button";
 import axios from "axios";
 import Input from "../../../shared/forms/Input/Input";
@@ -9,11 +9,11 @@ import {
   VALIDATOR_EMAIL
 } from "../../../shared/forms/validators/Validators";
 import { useForm } from "../../../shared/forms/UseForm/UseForm";
-// import GoogleLogin from 'react-google-login';
+import ErrorModal from '../../../shared/UI/ErrorModal/ErrorModal';
 
 const signin = props => {
-
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const [signinerr, setsigninerr] = useState('');
 
   const [formState, inputHandler] = useForm(
     {
@@ -62,10 +62,20 @@ const signin = props => {
         const token = resData.data.data.loginUser.token;
         const userId = resData.data.data.loginUser.userId;
         const firstname = resData.data.data.loginUser.firstname;
-        dispatch(ActionCreators.login(token, userId, firstname));
+        console.log(localStorage.getItem("expDate"));
+        dispatch(
+          ActionCreators.login(
+            token,
+            userId,
+            firstname,
+            localStorage.getItem("expDate")
+          )
+        );
         props.history.push("/");
       })
-      .catch(err => {});
+      .catch(err => {
+        setsigninerr(err);
+      });
   };
 
   // successGoogle = res => {
@@ -91,32 +101,26 @@ const signin = props => {
           id="password"
           label="Your Password"
           onInput={inputHandler}
-          validators={[
-            VALIDATOR_REQUIRE(),
-          ]}
+          validators={[VALIDATOR_REQUIRE()]}
         />
         <div className="submit-button">
           <Button type="submit" disabled={!formState.isValid}>
             SIGN IN!
           </Button>
         </div>
-        {/* <div>
-                        <GoogleLogin
-                         clientId=''
-                         buttonText="Google"
-                         onSuccess={this.successGoogle}
-                         onFailure={this.successGoogle} />
-                    </div> */}
       </form>
+      <ErrorModal
+        open={!!signinerr}
+        onClose={() => setsigninerr("")}
+        errorMessage={
+          signinerr.response &&
+          signinerr.response.data &&
+          signinerr.response.data.errors[0]
+            ? signinerr.response.data.errors[0].message
+            : "Unknown Error, We'll fix it soon"
+        }
+      />
     </div>
   );
 };
-// const mapDispatchToProps = dispatch => {
-//     return {
-//         onLogIn: (token, userId, firstname) => dispatch(ActionCreators.login(token, userId, firstname)),
-//         checkAuthState: () => dispatch(ActionCreators.checkAuthState()),
-//         onAuthGoogle: (data) => dispatch(ActionCreators.googleAuth(data))
-//     }
-// }
-
 export default signin;

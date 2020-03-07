@@ -1,15 +1,18 @@
-import React, { useEffect, Suspense } from "react";
+import React, { useEffect, Suspense, useCallback } from "react";
 import "./App.css";
 import { Route, Switch, withRouter } from "react-router-dom";
 import Layout from "./Layout/Layout/Layout";
-import * as ActionCreators from "./store/Actions/auth";
+import * as AuthActionCreators from "./store/Actions/auth";
 import { useSelector, useDispatch } from "react-redux";
 import Spinner from "./shared/UI/Spinner/Spinner";
-import UpdateMobiles from "./mobiles/pages/UpdateMobiles/UpdateMobiles";
 
 const Signin = React.lazy(() => {
   return import("./auth/pages/Signin/Signin");
 });
+
+const UpdateMobiles = React.lazy(() => {
+  return import('./mobiles/pages/UpdateMobiles/UpdateMobiles');
+})
 
 const Auth = React.lazy(() => {
   return import("./auth/pages/Auth/Auth");
@@ -38,24 +41,57 @@ const OrdersContainer = React.lazy(() => {
 
 const app = () => {
   const isAuthenticated = useSelector(state => state.auth.token != null);
-  console.log(isAuthenticated);
   const dispatch = useDispatch();
+  let logoutTimer;
+
+  const logout = useCallback(() => {
+    dispatch(AuthActionCreators.logout());
+  }, [dispatch]);
+
+  const login = useCallback((token, userId, firstName, expDate) => {
+    dispatch(AuthActionCreators.login(token, userId, firstName, expDate));
+  }, [dispatch]);
 
   useEffect(() => {
-    console.log("effect");
-    dispatch(ActionCreators.checkAuthState());
-  }, []);
+    const token = localStorage.getItem("token");
+    const expDate = localStorage.getItem("expDate");
+    if (token && expDate) {
+      const remainingTime = new Date(expDate).getTime() - new Date().getTime();
+      logoutTimer = setTimeout(logout, remainingTime);
+    } else {
+      clearTimeout(logoutTimer);
+    }
+  }, [localStorage.getItem("expDate"), localStorage.getItem("token"), logout]);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    const storedExpDate = localStorage.getItem('expDate');
+    const storedFirstName = localStorage.getItem("firstname");
+    const storedUserId = localStorage.getItem("userId");
+    if (
+      storedUserId &&
+      storedToken &&
+      new Date(storedExpDate) > new Date()
+    ) {
+      login(storedToken, storedUserId, storedFirstName, storedExpDate);
+    }
+  }, [login]);
+
   return (
     <Layout>
-      <Suspense fallback={
-        <div style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%'
-        }}>
-          <Spinner />
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%"
+            }}
+          >
+            <Spinner />
+          </div>
+        }
+      >
         <Switch>
           {!isAuthenticated ? (
             <Route

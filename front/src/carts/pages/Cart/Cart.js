@@ -15,11 +15,6 @@ const cart = props => {
   const totalPricee = useSelector(state => state.carts.totalPrice);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    onFetchCarts();
-    window.addEventListener("load", setPageLoaded(true));
-  }, [dispatch, onFetchCarts]);
-
   const onFetchCarts = useCallback(() => {
     setisLoading(true);
     dispatch(ActionCreators.fetchCarts())
@@ -32,6 +27,11 @@ const cart = props => {
         setCartErr(err);
       });
   }, [dispatch]);
+
+  useEffect(() => {
+    onFetchCarts();
+    window.addEventListener("load", setPageLoaded(true));
+  }, [dispatch, onFetchCarts]);
 
   const onCartIncrement = id => {
     dispatch(ActionCreators.incrementCartItem(id))
@@ -63,10 +63,6 @@ const cart = props => {
       props.history.push('/orders')
     })
     .catch(err => console.log(err))
-  };
-
-  const ongotomobiles = () => {
-    props.history.push("/");
   };
 
   return (

@@ -34,7 +34,7 @@ export const fetchCarts = () => {
     });
     if (
       getState().carts.carts.length <= 0 ||
-      getState().carts.totalPrice != price
+      getState().carts.totalPrice !== price
     ) {
       try {
         const response = await axios.post(
@@ -51,7 +51,6 @@ export const fetchCarts = () => {
         response.data.data.cart.forEach(car => {
           price += +car.mobileId.price * car.quantity;
         });
-        console.log(response);
         dispatch({
           type: ActionTypes.FETCH_CARTS,
           carts: response.data.data.cart,
@@ -231,7 +230,6 @@ export const addToCart = mobile => {
         }
       }
     );
-    console.log("responseeee", response.data.data.addToCart);
     dispatch({
       type: ActionTypes.ADD_TO_CART,
       cart: response.data.data.addToCart

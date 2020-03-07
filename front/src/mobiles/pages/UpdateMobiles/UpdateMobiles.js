@@ -21,7 +21,7 @@ const updateMobiles = props => {
 
   const userId = useSelector(state => state.auth.userId);
 
-  const [formState, inputHandler, setFormData] = useForm(
+  const [formState, inputHandler] = useForm(
     {
       title: {
         value: "",

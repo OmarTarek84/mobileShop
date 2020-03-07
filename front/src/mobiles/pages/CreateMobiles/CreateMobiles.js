@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useReducer } from "react";
+import React, { useState } from "react";
 
 import Input from "../../../shared/forms/Input/Input";
 import Button from "../../../shared/UI/Button/Button";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useForm } from "../../../shared/forms/UseForm/UseForm";
 import "./CreateMobiles.css";
 import {
@@ -12,10 +12,9 @@ import {
 } from "../../../shared/forms/validators/Validators";
 import * as ActionCreators from "../../../store/Actions/mobiles";
 import ErrorModal from "../../../shared/UI/ErrorModal/ErrorModal";
-import Spinner from "../../../shared/UI/Spinner/Spinner";
 
 const createMobiles = props => {
-  const [formState, inputHandler, setFormData] = useForm(
+  const [formState, inputHandler] = useForm(
     {
       title: {
         value: "",
@@ -41,8 +40,6 @@ const createMobiles = props => {
   const [file, setFile] = useState(null);
   const [imageSelected, setImageSelected] = useState(null);
   const [mobError, setmobError] = useState(false);
-  const [loading, setLoading] = useState(false);
-  // const [targetedMobile, setTargetedMobile] = useState();
 
   const fileChangeHandler = event => {
     const targetedFile = event.target.files[0];
@@ -52,7 +49,6 @@ const createMobiles = props => {
 
   const onSubmitForm = event => {
     event.preventDefault();
-    console.log(formState);
     dispatch(
       ActionCreators.createMobile(
         formState.inputs.title.value,
@@ -67,7 +63,6 @@ const createMobiles = props => {
         setmobError("");
       })
       .catch(err => {
-        console.log(err.response);
         setmobError(err);
       });
   };
@@ -86,63 +81,56 @@ const createMobiles = props => {
           encType="multipart/form-data"
         >
           <div className="form-control">
-            {!loading ? (
-              <>
-                <div className="inputParent">
-                  <Input
-                    element="input"
-                    id="title"
-                    type="text"
-                    label="Title"
-                    validators={[VALIDATOR_REQUIRE()]}
-                    onInput={inputHandler}
-                  />
-                </div>
-                <div className="inputParent">
-                  <Input
-                    element="textarea"
-                    id="description"
-                    label="Description"
-                    validators={[VALIDATOR_REQUIRE(), VALIDATOR_MAXLENGTH(150)]}
-                    onInput={inputHandler}
-                  />
-                </div>
-                <div className="inputParent">
-                  <Input
-                    element="input"
-                    id="price"
-                    type="number"
-                    label="Price"
-                    validators={[VALIDATOR_ISNUMBER(), VALIDATOR_REQUIRE()]}
-                    onInput={inputHandler}
-                  />
-                </div>
-                <div className="inputParent">
-                  <Input
-                    element="select"
-                    id="model"
-                    label="Mobile Model"
-                    validators={[]}
-                    onInput={inputHandler}
-                  />
-                </div>
-                <div className="inputParent">
-                  <label htmlFor="mobile_Picture">
-                    Select Your Mobile Photo
-                  </label>
-                  <input
-                    id="mobile_Picture"
-                    type="file"
-                    label="Select Mobile Photo"
-                    onChange={fileChangeHandler}
-                    accept=".png, .jpg, .jpeg"
-                    name="pic"
-                  />
-                </div>
-              </>
-            ) : (
-              <Spinner />
-            )}
+            <div className="inputParent">
+              <Input
+                element="input"
+                id="title"
+                type="text"
+                label="Title"
+                validators={[VALIDATOR_REQUIRE()]}
+                onInput={inputHandler}
+              />
+            </div>
+            <div className="inputParent">
+              <Input
+                element="textarea"
+                id="description"
+                label="Description"
+                validators={[VALIDATOR_REQUIRE(), VALIDATOR_MAXLENGTH(150)]}
+                onInput={inputHandler}
+              />
+            </div>
+            <div className="inputParent">
+              <Input
+                element="input"
+                id="price"
+                type="number"
+                label="Price"
+                validators={[VALIDATOR_ISNUMBER(), VALIDATOR_REQUIRE()]}
+                onInput={inputHandler}
+              />
+            </div>
+            <div className="inputParent">
+              <Input
+                element="select"
+                id="model"
+                label="Mobile Model"
+                validators={[]}
+                onInput={inputHandler}
+                initialValue="samsung"
+              />
+            </div>
+            <div className="inputParent">
+              <label htmlFor="mobile_Picture">Select Your Mobile Photo</label>
+              <input
+                id="mobile_Picture"
+                type="file"
+                label="Select Mobile Photo"
+                onChange={fileChangeHandler}
+                accept=".png, .jpg, .jpeg"
+                name="pic"
+              />
+            </div>
           </div>
           {file ? (
             <div className="image-selected">

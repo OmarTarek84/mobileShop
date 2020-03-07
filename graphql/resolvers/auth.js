@@ -71,9 +71,9 @@ module.exports = {
                     userId: user._id,
                     tokenExpiration: 1,
                     firstname: user.firstname
-                }
-            })
-        })
+                };
+            });
+        });
     }
 
 };

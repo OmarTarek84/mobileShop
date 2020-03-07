@@ -39,7 +39,6 @@ export const fetchOrders = () => {
             }
           }
         );
-        console.log('allOrderAfter fetching', response)
         dispatch({
           type: ActionTypes.FETCH_ORDERS,
           orders: response.data.data.orders
@@ -90,10 +89,6 @@ export const addOrder = () => {
     dispatch({
         type: ActionTypes.ADD_ORDER,
         order: ordersResult
-    })
-    // .then(resData => {
-    //   console.log(resData);
-    //   props.history.push("/orders");
-    // })
+    });
   };
 };

@@ -24,7 +24,7 @@ export const fetchMobiles = () => {
               }
             `
     };
-    if (getState().mobiles.mobiles.length <= 0) {
+    if (getState().mobiles.mobiles.length <= 1) {
       try {
         const resData = await axios.post(
           "http://localhost:8080/graphql",
@@ -36,7 +36,6 @@ export const fetchMobiles = () => {
           }
         );
         const mobiles = resData.data.data.mobiles;
-        console.log(resData);
         dispatch({
           type: ActionTypes.FETCH_MOBILES,
           mobiles: mobiles
@@ -53,18 +52,22 @@ export const fetchMobiles = () => {
 export const createMobile = (title, description, price, model, file) => {
   return async (dispatch, getState) => {
     try {
-      const formData = new FormData();
-      formData.append("pic", file);
-      console.log("fileee", file);
-      const response1 = await fetch("http://localhost:8080/post-image", {
-        method: "PUT",
-        headers: {
-          Authorization: "Bearer " + getState().auth.token
-        },
-        body: formData
-      });
-      const res1Json = await response1.json();
-      console.log("file ==>>", res1Json);
+      let image;
+      if (typeof(file) === 'string') {
+        image = file;
+      } else {
+        const formData = new FormData();
+        formData.append("pic", file);
+        const response1 = await fetch("http://localhost:8080/post-image", {
+          method: "PUT",
+          headers: {
+            Authorization: "Bearer " + getState().auth.token
+          },
+          body: formData
+        });
+        const res1Json = await response1.json();
+        image = res1Json.filePath;
+      }
       const requestBody = {
         query: `
                       mutation CreateMobile($title: String!, $description: String!, $price: Float!, $model: String!, $imageUrl: String!) {
@@ -81,6 +84,7 @@ export const createMobile = (title, description, price, model, file) => {
                               price
                               model
                               userId {
+                                _id
                                 email
                                 firstname
                                 lastname
@@ -96,7 +100,7 @@ export const createMobile = (title, description, price, model, file) => {
           description: description,
           price: price,
           model: model,
-          imageUrl: res1Json.filePath
+          imageUrl: image
         }
       };
       const response2 = await axios.post(
@@ -109,7 +113,6 @@ export const createMobile = (title, description, price, model, file) => {
           }
         }
       );
-      console.log("final response ==>> ", response2);
       dispatch({
         type: ActionTypes.CREATE_MOBILE,
         mobile: response2.data.data.createMobile
@@ -117,6 +120,29 @@ export const createMobile = (title, description, price, model, file) => {
     } catch (err1) {
       throw err1;
     }
+  };
+};
+
+export const editMobileSocket = (id, title, description, price, model, imageUrl) => {
+  return dispatch => {
+    dispatch({
+      type: ActionTypes.EDIT_MOBILE,
+      id: id,
+      title: title,
+      description: description,
+      model: model,
+      price: price,
+      imageUrl: imageUrl
+    });
+  };
+};
+
+export const createMobileSocket = (mobile) => {
+  return dispatch => {
+    dispatch({
+      type: ActionTypes.CREATE_MOBILE,
+      mobile: mobile
+    });
   };
 };
 
@@ -194,7 +220,6 @@ export const editMobile = (id, title, description, price, model, imageUrl) => {
         price: resData.price,
         imageUrl: resData.imageUrl
       });
-      console.log('response =>', response);
     } catch(err) {
       throw err;
     }

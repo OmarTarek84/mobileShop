@@ -33,7 +33,7 @@ const cartReducer = (state = initialState, action) => {
       let targetedItemPrice = 0;
       targetedItemPrice = allCartss[targetedItemIndexx].mobileId.price;
       allCartss[targetedItemIndexx].quantity -= 1;
-      if (allCartss[targetedItemIndexx].quantity == 0) {
+      if (allCartss[targetedItemIndexx].quantity === 0) {
         allCartss.splice(targetedItemIndexx, 1);
       }
       return {

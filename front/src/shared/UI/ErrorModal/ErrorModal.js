@@ -6,7 +6,7 @@ import Modal from "react-responsive-modal";
 const errorModal = props => {
   return (
     <Modal open={props.open} onClose={props.onClose} center>
-      <h2 style={{ textAlign: "center" }}>An Error Occurred</h2>
+      <h2 style={{ textAlign: "center", marginTop: '11%' }}>An Error Occurred</h2>
       <p style={{ marginTop: "12px" }}>
         {props.errorMessage}
       </p>
